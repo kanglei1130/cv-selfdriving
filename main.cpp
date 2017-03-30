@@ -41,13 +41,14 @@ int main( int, char** argv )
 	*/
 
 
+	/*
 	string in = string("/home/lkang/Desktop/blur/blur.jpg");
 	Mat src = imread(in, IMREAD_COLOR);
 	Mat gray;
 	cvtColor(src, gray, CV_BGR2GRAY);
 	blurDetection(gray);
-
-	//processVideo();
+	*/
+	processVideo();
 	return(0);
 }
 
@@ -105,17 +106,20 @@ void processVideo() {
 
 		counter++;
 		cout<<counter<<","<<num<<endl;
-		/*
 		if(num==0) {
 			imshow("frame", frame);
 			imshow("gray", gray);
 			waitKey(0);
 			break;
 		}
-		*/
-		cvtColor(frame, gray, CV_BGR2GRAY);
-		blurDetection(gray);
+
+		//cvtColor(frame, gray, CV_BGR2GRAY);
+		//blurDetection(gray);
 		sleep(1);
+		imshow("frame", frame);
+		imshow("gray", gray);
+		waitKey(0);
+		break;
 
 	}
 	cout<<counter<<endl;
