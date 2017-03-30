@@ -41,7 +41,7 @@ int main( int, char** argv )
 	*/
 
 
-	string in = string("/home/lkang/Desktop/blur.jpg");
+	string in = string("/home/lkang/Desktop/blur/blur.jpg");
 	Mat src = imread(in, IMREAD_COLOR);
 	Mat gray;
 	cvtColor(src, gray, CV_BGR2GRAY);
