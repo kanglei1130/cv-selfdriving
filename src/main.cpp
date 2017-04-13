@@ -6,10 +6,9 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
-
+#include "headers.h"
 #include "lane_marker_detector.h"
 #include "receiver_socket.h"
-#include "headers.h"
 
 string imagepath = "/home/lkang/Desktop/caltech-lanes/cordova1/";
 
@@ -26,6 +25,7 @@ int adjustTest();
 void processVideo();
 void blurDetection(Mat& frame);
 
+int changePixelColor();
 int main( int, char** argv )
 {
 
@@ -48,8 +48,32 @@ int main( int, char** argv )
 	cvtColor(src, gray, CV_BGR2GRAY);
 	blurDetection(gray);
 	*/
-	processVideo();
+	//processVideo();
+
+	changePixelColor();
 	return(0);
+}
+
+int changePixelColor() {
+	string in = string(imagepath + string("f00185.png"));
+	Mat img = imread(in, IMREAD_COLOR);
+	if (img.empty()) {
+		cerr << "No image supplied ..." << endl;
+		return -1;
+	}
+	int cols = img.cols;
+	int rows = img.rows;
+
+	cout<<rows<<","<<cols<<endl;
+	for(int x = 0; x < rows; ++x) {
+		for(int y = 0; y < cols; ++y) {
+			if(y == cols/2) {
+				img.at<Vec3b>(x, y) = Vec3b(255, 255, 255);;
+			}
+		}
+	}
+	imshow("Change Pixel Color", img);
+	waitKey(0);
 }
 
 
@@ -103,6 +127,7 @@ void processVideo() {
 		//Canny(edges, edges, 200, 400);
 
 		int num = processImage(frame, gray);
+		/*
 
 		counter++;
 		cout<<counter<<","<<num<<endl;
@@ -112,14 +137,15 @@ void processVideo() {
 			waitKey(0);
 			break;
 		}
-
+		*/
 		//cvtColor(frame, gray, CV_BGR2GRAY);
 		//blurDetection(gray);
-		sleep(1);
+		//sleep(1);
 		imshow("frame", frame);
-		imshow("gray", gray);
-		waitKey(0);
-		break;
+		//imshow("gray", gray);
+		waitKey(100);
+		//sleep(1);
+		//break;
 
 	}
 	cout<<counter<<endl;
