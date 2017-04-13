@@ -32,13 +32,13 @@ int main( int, char** argv )
 	//processVideo();
 	//adjustTest();
 
+	cout<<"Hello Wolrd"<<endl;
 	//startUdpServer();
 
-	/*
-	Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
-	inversePerspectiveMapping(canny_output, ipm);
-	imshow( "ipm", ipm);
-	*/
+
+	//Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
+	//inversePerspectiveMapping(canny_output, ipm);
+	//imshow( "ipm", ipm);
 
 
 	/*
@@ -50,7 +50,7 @@ int main( int, char** argv )
 	*/
 	//processVideo();
 
-	changePixelColor();
+	//changePixelColor();
 	return(0);
 }
 
