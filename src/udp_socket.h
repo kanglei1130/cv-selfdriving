@@ -5,7 +5,7 @@
 
 //#define DEBUG_UDP_SOCKET 1
 
-const int32_t kPacketSize = 1000;
+const int32_t kPacketSize = 65535;
 
 class UdpSocket {
 

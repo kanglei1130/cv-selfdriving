@@ -2,7 +2,7 @@
 #include <unistd.h>
 #include <termios.h>
 
-int getkeyboard()
+int keyboard()
 {
     struct termios old_tio, new_tio;
     unsigned char c;

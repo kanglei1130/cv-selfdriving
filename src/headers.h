@@ -18,15 +18,13 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 #include <sys/time.h>
-#include <sys/ioctl.h>
-#include <fcntl.h>
 
 
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
 #include <arpa/inet.h> 
-
+#include <fcntl.h>
 
 
 /*General C++ Headers*/
@@ -45,6 +43,8 @@
 #include <cmath>
 #include <limits>
 #include <iomanip>
+#include <jsoncpp/json/json.h>
+#include <termios.h>
 
 using namespace std;
 
@@ -54,8 +54,6 @@ template < typename T > std::string to_string(const T& n ) {
   stm << n ;
   return stm.str() ;
 }
-
-const int kCSATPacketDuration = 4; //in ms
 
 #endif
 

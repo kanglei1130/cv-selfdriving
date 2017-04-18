@@ -41,6 +41,8 @@
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.658379833" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
 								<option id="gnu.cpp.link.option.libs.1004336136" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="opencv_highgui"/>
+									<listOptionValue builtIn="false" value="jsoncpp"/>
+									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="opencv_superres"/>
 									<listOptionValue builtIn="false" value="opencv_videostab"/>
 									<listOptionValue builtIn="false" value="opencv_calib3d"/>
@@ -129,7 +131,7 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="opencvtest.cdt.managedbuild.target.gnu.cross.exe.1842366038" name="Executable" projectType="cdt.managedbuild.target.gnu.cross.exe"/>
+		<project id="cv-selfdriving.null.532551862" name="cv-selfdriving"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
@@ -148,11 +150,11 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/opencvtest"/>
+		<configuration configurationName="Default">
+			<resource resourceType="PROJECT" workspacePath="/cv-selfdriving"/>
 		</configuration>
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/opencvtest"/>
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/cv-selfdriving"/>
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
