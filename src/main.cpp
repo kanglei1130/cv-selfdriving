@@ -36,7 +36,7 @@ void startThreads();
 int main( int, char** argv )
 {
 
-	//processVideo();
+	processVideo();
 	//adjustTest();
 
 	//cout<<"Hello Wolrd"<<endl;
@@ -55,7 +55,6 @@ int main( int, char** argv )
 	cvtColor(src, gray, CV_BGR2GRAY);
 	blurDetection(gray);
 	*/
-	//processVideo();
 
 	//changePixelColor();
 
@@ -70,160 +69,10 @@ int main( int, char** argv )
 	cout<<"the end"<<endl;
 	*/
 
-	startThreads();
+	//startThreads();
 	return(0);
 }
 
-void startUdpServer() {
-	const int kUdpPort = 55555;
-	const string ip = "127.0.0.1";
-	UdpSocket* udpsocket = new UdpSocket(kPacketSize);
-	udpsocket->UdpSocketSetUp(ip, kUdpPort);
-	while(true) {
-		string remoteip;
-		int32_t remoteport;
-		string data;
-		udpsocket->ReceiveFrom(remoteip, remoteport, data);
-		cout<<data<<endl;
-
-		Json::Value parsedFromString;
-		Json::Reader reader;
-		bool parsingSuccessful = reader.parse(data, parsedFromString);
-		if(parsingSuccessful) {
-			cout<<parsedFromString["type_"]<<endl;
-			cout<<parsedFromString["data_"]<<endl;
-		} else {
-			cout<<"json format error:" + data<<endl;
-		}
-
-	}
-	/*
-	ReceiverSocket socket(kUdpPort);
-	if (socket.BindSocketToListen()) {
-		std::cout << "Listening on port " << kUdpPort << "." << std::endl;
-	    while (true) {  // TODO: break out cleanly when done.
-	    	std::vector<unsigned char> data = socket.GetPacket();
-	    	cv::Mat frame = cv::imdecode(data, cv::IMREAD_COLOR);
-	    	if (!frame.data) {
-	    		std::cerr << "Could not decode image data." << std::endl;
-	    		return;
-	    	}
-	    	cv::imshow("streaming video", frame);
-	    	cv::waitKey(15);
-	    }
-	}
-	*/
-}
-
-
-static void* UDPReceiver(void* dataPool);
-static void* ControlPanel(void* dataPool);
-
-void startThreads() {
-
-	DataPool* dataPool = new DataPool();
-	int num = 2;
-
-	pthread_t threads[num];
-	pthread_create (&(threads[0]), NULL, &UDPReceiver, dataPool);
-	pthread_create (&(threads[1]), NULL, &ControlPanel, dataPool);
-
-	for(int i = 0; i < num; ++i) {
-		pthread_join(threads[i], NULL);
-	}
-	delete dataPool;
-}
-
-static void* UDPReceiver(void* param)
-{
-	cout<<"Enter UDP Receiver"<<endl;;
-	DataPool *dataPool = (DataPool*)param;
-
-	string remoteip;
-	int32_t remoteport;
-	string data;
-	while(true) {
-		dataPool->udpsocket_->ReceiveFrom(remoteip, remoteport, data);
-		//cout<<data<<endl;
-
-		Json::Value parsedFromString;
-		Json::Reader reader;
-		assert(reader.parse(data, parsedFromString));
-
-		//cout<<parsedFromString["type_"]<<endl;
-		//cout<<parsedFromString["data_"]<<endl;
-
-	}
-	pthread_exit(NULL);
-}
-
-static void* ControlPanel(void* param)
-{
-	cout<<"Enter Scheduler"<<endl;;
-	DataPool *dataPool = (DataPool*)param;
-	struct termios old_tio, new_tio;
-	unsigned char c;
-	/* get the terminal settings for stdin */
-	tcgetattr(STDIN_FILENO,&old_tio);
-	/* we want to keep the old setting to restore them a the end */
-	new_tio=old_tio;
-	/* disable canonical mode (buffered i/o) and local echo */
-	new_tio.c_lflag &=(~ICANON & ~ECHO);
-	/* set the new settings immediately */
-	tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
-	do {
-		c=getchar();
-		printf("%c\n",c);
-
-		CarControl carControl;
-		carControl.parseCommand(c);
-		Json::Value data;
-		data["speed_"] = carControl.speed_;
-		data["rotation_"] = carControl.rotation_;
-		string str = data.toStyledString();
-		dataPool->udpsocket_->SendTo(kRemoteIP, kRemotePort, str);
-	} while(c!='q');
-
-	cout<<"ControlPanel exit"<<endl;
-	/* restore the former settings */
-	tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
-	pthread_exit(NULL);
-}
-
-
-
-
-int changePixelColor() {
-	string in = string(imagepath + string("f00185.png"));
-	Mat img = imread(in, IMREAD_COLOR);
-	if (img.empty()) {
-		cerr << "No image supplied ..." << endl;
-		return -1;
-	}
-	int cols = img.cols;
-	int rows = img.rows;
-
-	cout<<rows<<","<<cols<<endl;
-	for(int x = 0; x < rows; ++x) {
-		for(int y = 0; y < cols; ++y) {
-			if(y == cols/2) {
-				img.at<Vec3b>(x, y) = Vec3b(255, 255, 255);;
-			}
-		}
-	}
-	imshow("Change Pixel Color", img);
-	waitKey(0);
-}
-
-
-void blurDetection(Mat& frame) {
-	Mat laplace;
-	Laplacian(frame, laplace, CV_16S, 3);
-	Scalar     mean;
-	Scalar     stddev;
-	meanStdDev (laplace, mean, stddev);
-	cout<<"blurness:"<<stddev<<endl;
-}
 
 
 
@@ -264,8 +113,8 @@ void processVideo() {
 		//cvtColor(frame, gray, CV_BGR2GRAY);
 		//blurDetection(gray);
 		//sleep(1);
-		imshow("frame", frame);
-		//imshow("gray", gray);
+		//imshow("frame", frame);
+		imshow("gray", gray);
 		waitKey(100);
 		//sleep(1);
 		//break;
@@ -273,6 +122,41 @@ void processVideo() {
 	}
 	cout<<counter<<endl;
 }
+
+
+
+int changePixelColor() {
+	string in = string(imagepath + string("f00185.png"));
+	Mat img = imread(in, IMREAD_COLOR);
+	if (img.empty()) {
+		cerr << "No image supplied ..." << endl;
+		return -1;
+	}
+	int cols = img.cols;
+	int rows = img.rows;
+
+	cout<<rows<<","<<cols<<endl;
+	for(int x = 0; x < rows; ++x) {
+		for(int y = 0; y < cols; ++y) {
+			if(y == cols/2) {
+				img.at<Vec3b>(x, y) = Vec3b(255, 255, 255);;
+			}
+		}
+	}
+	imshow("Change Pixel Color", img);
+	waitKey(0);
+}
+
+
+void blurDetection(Mat& frame) {
+	Mat laplace;
+	Laplacian(frame, laplace, CV_16S, 3);
+	Scalar     mean;
+	Scalar     stddev;
+	meanStdDev (laplace, mean, stddev);
+	cout<<"blurness:"<<stddev<<endl;
+}
+
 
 
 void test(Mat src, Mat& gray) {
@@ -391,44 +275,4 @@ void inversePerspectiveMapping(Mat& input, Mat& output) {
 
 
 
-
-
-Mat src, src_gray;
-int thresh = 100;
-
-int adjustTest()
-{
-	string in = string(imagepath + string("f00185.png"));
-	src = imread(in, IMREAD_COLOR);
-	if (src.empty()) {
-		cerr << "No image supplied ..." << endl;
-		return -1;
-	}
-	cvtColor( src, src_gray, COLOR_BGR2GRAY );
-	const char* source_window = "Source";
-	namedWindow( source_window, WINDOW_AUTOSIZE );
-	imshow( source_window, src );
-	createTrackbar("Canny thresh:", "Source", &thresh, 255, thresh_callback );
-	thresh_callback( 0, 0 );
-	waitKey(0);
-	return(0);
-}
-void thresh_callback(int, void* )
-{
-	Mat canny_output;
-	vector<vector<Point> > contours;
-	vector<Vec4i> hierarchy;
-	Canny( src_gray, canny_output, thresh, thresh*2);
-	findContours( canny_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0) );
-	Mat drawing = Mat::zeros( canny_output.size(), CV_8UC3 );
-
-	for( size_t i = 0; i< contours.size(); i++ ) {
-		//Rect _boundingRect = boundingRect( contours[i] );
-		//Scalar color = mean( src( _boundingRect ) );
-		drawContours( drawing, contours, (int)i, Scalar(0,0,255), FILLED);
-
-	}
-	namedWindow( "Contours", WINDOW_AUTOSIZE );
-	imshow( "Contours", drawing );
-}
 
