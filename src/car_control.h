@@ -6,10 +6,10 @@
 class CarControl {
 public:
 	int speed_;
-    int rotation_;
+    int steering_;
     CarControl() {
         speed_ = 0;
-        rotation_ = 5;
+        steering_ = 0;
     }
 
     void parseCommand(char cmd) {
@@ -21,16 +21,18 @@ public:
     		this->speed_ = -1;
     		break;
     	case 'a':
-    		this->rotation_ = -1;
+    		this->steering_ = -1;
     		break;
     	case 'd':
-    		this->rotation_ = 1;
+    		this->steering_ = 1;
     		break;
     	default:
-    		cout<<"unknown command"<<endl;
+    		cout<<"unknown command:"<<cmd<<endl;
     		break;
     	}
     }
+    static void* UDPReceiver(void* dataPool);
+    static void* ControlPanel(void* dataPool);
 };
 
 

@@ -23,8 +23,7 @@ void test(Mat src, Mat& gray);
 
 void startUdpServer();
 
-void thresh_callback(int, void* );
-int adjustTest();
+
 void processVideo();
 void blurDetection(Mat& frame);
 
@@ -36,7 +35,7 @@ void startThreads();
 int main( int, char** argv )
 {
 
-	processVideo();
+	//processVideo();
 	//adjustTest();
 
 	//cout<<"Hello Wolrd"<<endl;
@@ -69,17 +68,31 @@ int main( int, char** argv )
 	cout<<"the end"<<endl;
 	*/
 
-	//startThreads();
+	startThreads();
 	return(0);
 }
 
 
 
+void startThreads() {
+
+	DataPool* dataPool = new DataPool();
+	int num = 2;
+
+	pthread_t threads[num];
+	pthread_create (&(threads[0]), NULL, &CarControl::UDPReceiver, dataPool);
+	pthread_create (&(threads[1]), NULL, &CarControl::ControlPanel, dataPool);
+
+	for(int i = 0; i < num; ++i) {
+		pthread_join(threads[i], NULL);
+	}
+	delete dataPool;
+}
 
 
 
 void processVideo() {
-	VideoCapture cap("/home/lkang/Desktop/test.mp4"); // open the default camera
+	VideoCapture cap("/home/lkang/Desktop/test.avi"); // open the default camera
 	if(!cap.isOpened()) { // check if we succeeded
 		cout<<"not able to open"<<endl;
 		return;
@@ -93,32 +106,11 @@ void processVideo() {
 		if(frame.empty()) {
 			break;
 		}
-
-		//cvtColor(frame, edges, CV_BGR2GRAY);
-		//GaussianBlur(edges, edges, Size(7,7), 1.5, 1.5);
-		//Canny(edges, edges, 200, 400);
-
 		int num = processImage(frame, gray);
-		/*
-
-		counter++;
-		cout<<counter<<","<<num<<endl;
-		if(num==0) {
-			imshow("frame", frame);
-			imshow("gray", gray);
-			waitKey(0);
-			break;
-		}
-		*/
-		//cvtColor(frame, gray, CV_BGR2GRAY);
-		//blurDetection(gray);
-		//sleep(1);
-		//imshow("frame", frame);
 		imshow("gray", gray);
 		waitKey(100);
-		//sleep(1);
+		usleep(1000000);
 		//break;
-
 	}
 	cout<<counter<<endl;
 }
@@ -224,10 +216,30 @@ int processImage(Mat src, Mat& gray) {
 	//cout<<cline.size()<<endl;
 	publish_points(test, cline, kLaneWhite);
 
+	int leftsum = 0;
+	int rightsum = 0;
+	for(int i = 0; i < cline.size() && i < 20; ++i) {
+		Point point = cline.at(i);
+		if(point.x < center.x) {
+			leftsum++;
+		} else {
+			rightsum++;
+		}
+	}
+	int steering = 0;
+	int sum = leftsum + rightsum;
+	if(sum > 6) {
+		double diff = double(leftsum - rightsum)/sum;
+		if(diff > 0.3) {
+			steering = -1;
+		} else if(diff < -0.3) {
+			steering = 1;
+		} else {
+
+		}
+	}
 	gray = test;
-
-
-	return cline.size();
+	return steering;
 }
 
 

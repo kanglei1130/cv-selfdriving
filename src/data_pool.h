@@ -5,11 +5,11 @@
 #include "headers.h"
 #include "udp_socket.h"
 
-const int kLocalPort = 55555;
-const string kLocalIP = "127.0.0.1";
+const int kLocalPort = 4444;
+const string kLocalIP = "192.168.1.100";
 
-const int kRemotePort = 4444;
-const string kRemoteIP = "127.0.0.1";
+const int kRemotePort = 55555;
+const string kRemoteIP = "192.168.1.101";
 
 class DataPool {
 private:
@@ -23,10 +23,12 @@ public:
 	pthread_spinlock_t spinlock;
 
 	UdpSocket* udpsocket_;
+	bool running;
 
 	DataPool() {
 		udpsocket_ = new UdpSocket(kPacketSize);
 		udpsocket_->UdpSocketSetUp(kLocalIP, kLocalPort);
+		running = true;
 	}
 
 	~DataPool() {

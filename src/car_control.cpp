@@ -5,25 +5,9 @@
 #include "udp_socket.h"
 #include "car_control.h"
 
-static void* UDPReceiver(void* dataPool);
-static void* ControlPanel(void* dataPool);
 
-void startThreads() {
 
-	DataPool* dataPool = new DataPool();
-	int num = 2;
-
-	pthread_t threads[num];
-	pthread_create (&(threads[0]), NULL, &UDPReceiver, dataPool);
-	pthread_create (&(threads[1]), NULL, &ControlPanel, dataPool);
-
-	for(int i = 0; i < num; ++i) {
-		pthread_join(threads[i], NULL);
-	}
-	delete dataPool;
-}
-
-static void* UDPReceiver(void* param)
+void* CarControl::UDPReceiver(void* param)
 {
 	cout<<"Enter UDP Receiver"<<endl;;
 	DataPool *dataPool = (DataPool*)param;
@@ -31,9 +15,8 @@ static void* UDPReceiver(void* param)
 	string remoteip;
 	int32_t remoteport;
 	string data;
-	while(true) {
+	while(dataPool->running) {
 		dataPool->udpsocket_->ReceiveFrom(remoteip, remoteport, data);
-		//cout<<data<<endl;
 
 		Json::Value parsedFromString;
 		Json::Reader reader;
@@ -43,10 +26,11 @@ static void* UDPReceiver(void* param)
 		//cout<<parsedFromString["data_"]<<endl;
 
 	}
+	cout<<"UDPReceiver exit"<<endl;
 	pthread_exit(NULL);
 }
 
-static void* ControlPanel(void* param)
+void* CarControl::ControlPanel(void* param)
 {
 	cout<<"Enter Scheduler"<<endl;;
 	DataPool *dataPool = (DataPool*)param;
@@ -60,22 +44,25 @@ static void* ControlPanel(void* param)
 	new_tio.c_lflag &=(~ICANON & ~ECHO);
 	/* set the new settings immediately */
 	tcsetattr(STDIN_FILENO,TCSANOW,&new_tio);
-	do {
+	while(dataPool->running) {
 		c=getchar();
 		printf("%c\n",c);
-
+		if(c == 'q') {
+			cout<<c<<endl;
+			dataPool->running = false;
+			break;
+		}
 		CarControl carControl;
 		carControl.parseCommand(c);
 		Json::Value data;
 		data["speed_"] = carControl.speed_;
-		data["rotation_"] = carControl.rotation_;
+		data["steering_"] = carControl.steering_;
 		string str = data.toStyledString();
 		dataPool->udpsocket_->SendTo(kRemoteIP, kRemotePort, str);
-	} while(c!='q');
-
-	cout<<"ControlPanel exit"<<endl;
+	}
 	/* restore the former settings */
 	tcsetattr(STDIN_FILENO,TCSANOW,&old_tio);
+	cout<<"ControlPanel exit"<<endl;
 	pthread_exit(NULL);
 }
 
