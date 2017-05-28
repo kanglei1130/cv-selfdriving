@@ -22,8 +22,10 @@ void* CarControl::UDPReceiver(void* param)
 		Json::Reader reader;
 		assert(reader.parse(data, parsedFromString));
 
-		//cout<<parsedFromString["type_"]<<endl;
+		cout<<data<<endl;
 		//cout<<parsedFromString["data_"]<<endl;
+		long time = (long)parsedFromString["time_"].asInt64 ();
+		cout<<currentTimeMillis() - time<<endl;
 
 	}
 	cout<<"UDPReceiver exit"<<endl;
@@ -57,6 +59,7 @@ void* CarControl::ControlPanel(void* param)
 		Json::Value data;
 		data["speed_"] = carControl.speed_;
 		data["steering_"] = carControl.steering_;
+		data["time_"] = (Json::UInt64)carControl.time_;
 		string str = data.toStyledString();
 		dataPool->udpsocket_->SendTo(kRemoteIP, kRemotePort, str);
 	}

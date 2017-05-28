@@ -69,6 +69,9 @@ int main( int, char** argv )
 	*/
 
 	startThreads();
+
+	//cout << currentTimeMillis() << endl;
+
 	return(0);
 }
 

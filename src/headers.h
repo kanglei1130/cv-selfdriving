@@ -46,13 +46,20 @@
 #include <jsoncpp/json/json.h>
 #include <termios.h>
 
+#include <chrono>
+
 using namespace std;
+using namespace std::chrono;
 
 
 template < typename T > std::string to_string(const T& n ) {
   std::ostringstream stm ;
   stm << n ;
   return stm.str() ;
+}
+
+static inline long currentTimeMillis() {
+	return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 }
 
 #endif

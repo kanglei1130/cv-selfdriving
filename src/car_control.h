@@ -5,11 +5,13 @@
 
 class CarControl {
 public:
+	uint64_t time_;
 	int speed_;
     int steering_;
     CarControl() {
         speed_ = 0;
         steering_ = 0;
+        time_ = currentTimeMillis();
     }
 
     void parseCommand(char cmd) {
