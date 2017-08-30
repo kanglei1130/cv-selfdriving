@@ -1,4 +1,5 @@
 #include "udp_socket.h"
+#include "data_pool.h"
 
 
 UdpSocket::UdpSocket(int32_t pkt_sz/* = kPacketSize*/)
@@ -34,7 +35,7 @@ void UdpSocket::UdpSocketSetUp(const string& ip, const int32_t& port)
   udp_addr_.sin_port = htons(port);
   udp_addr_.sin_addr.s_addr = inet_addr(ip.c_str());
   bzero(&(udp_addr_.sin_zero),8);
-
+  cout<<port<<ip<<sizeof(struct sockaddr)<<endl;
   int32_t res_bind = bind(udp_socket_id_, (struct sockaddr *)&udp_addr_, sizeof(struct sockaddr));
   if(-1==res_bind) {
     perror("Error: UdpSocket bind failed in UdpSocketSetUp()");
@@ -108,3 +109,7 @@ int32_t UdpSocket::ReceiveFrom(string& ip, int32_t& port, string& data)
 #endif
   return bytes_read;  
 }
+
+
+
+

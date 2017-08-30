@@ -34,7 +34,7 @@ int thresh = 100;
 int adjustTest()
 {
 	string imagepath = "/home/lkang/Desktop/caltech-lanes/cordova1/";
-	string in = string(imagepath + string("f00185.png"));
+	cv::String in = string(imagepath + string("f00185.png"));
 	src = imread(in, IMREAD_COLOR);
 	if (src.empty()) {
 		cerr << "No image supplied ..." << endl;

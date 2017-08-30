@@ -15,7 +15,6 @@
 
 string imagepath = "/home/lkang/Desktop/caltech-lanes/cordova1/";
 
-
 void inversePerspectiveMapping(Mat& input, Mat& output);
 void publish_points(Mat& img, Points& points, const Vec3b& color);
 int processImage(Mat src, Mat& gray);
@@ -28,7 +27,7 @@ void processVideo();
 void blurDetection(Mat& frame);
 
 int changePixelColor();
-
+int adjustTest();
 
 void startThreads();
 
@@ -42,18 +41,18 @@ int main( int, char** argv )
 	//startUdpServer();
 
 
-	//Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
-	//inversePerspectiveMapping(canny_output, ipm);
-	//imshow( "ipm", ipm);
+/*	Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
+	inversePerspectiveMapping(canny_output, ipm);
+	imshow( "ipm", ipm);*/
 
 
-	/*
-	string in = string("/home/lkang/Desktop/blur/blur.jpg");
+
+/*	string in = string("/home/lkang/Desktop/blur/blur.jpg");
 	Mat src = imread(in, IMREAD_COLOR);
 	Mat gray;
 	cvtColor(src, gray, CV_BGR2GRAY);
-	blurDetection(gray);
-	*/
+	blurDetection(gray);*/
+
 
 	//changePixelColor();
 
@@ -68,9 +67,9 @@ int main( int, char** argv )
 	cout<<"the end"<<endl;
 	*/
 
-	startThreads();
+	//startThreads();
 
-	//cout << currentTimeMillis() << endl;
+	cout << currentTimeMillis() << endl;
 
 	return(0);
 }
@@ -78,24 +77,30 @@ int main( int, char** argv )
 
 
 void startThreads() {
-
+	/*if there is an error about bind address or address already used
+	 *reconnect the tethering mode on the phone(turn off then turn on)
+	*/
 	DataPool* dataPool = new DataPool();
-	int num = 2;
 
+	int num = 2;
 	pthread_t threads[num];
+
 	pthread_create (&(threads[0]), NULL, &CarControl::UDPReceiver, dataPool);
 	pthread_create (&(threads[1]), NULL, &CarControl::ControlPanel, dataPool);
 
 	for(int i = 0; i < num; ++i) {
 		pthread_join(threads[i], NULL);
 	}
+
 	delete dataPool;
+
 }
 
 
 
 void processVideo() {
-	VideoCapture cap("/home/lkang/Desktop/test.avi"); // open the default camera
+	VideoCapture cap("/home/lkang/Desktop/test.mp4"); // open the default camera
+
 	if(!cap.isOpened()) { // check if we succeeded
 		cout<<"not able to open"<<endl;
 		return;
@@ -111,8 +116,10 @@ void processVideo() {
 		}
 		int num = processImage(frame, gray);
 		imshow("gray", gray);
-		waitKey(100);
-		usleep(1000000);
+		/*waitKey(100);
+		usleep(1000000);*/
+		waitKey(10);
+		usleep(0);
 		//break;
 	}
 	cout<<counter<<endl;
@@ -121,7 +128,7 @@ void processVideo() {
 
 
 int changePixelColor() {
-	string in = string(imagepath + string("f00185.png"));
+	cv::String in = string(imagepath + string("f00185.png"));
 	Mat img = imread(in, IMREAD_COLOR);
 	if (img.empty()) {
 		cerr << "No image supplied ..." << endl;
@@ -187,7 +194,9 @@ void test(Mat src, Mat& gray) {
 
 }
 
-const int kCannyThreshold = 200;
+//adjust the edges/contours as image_test.cpp does
+//const int kCannyThreshold = 200;
+const int kCannyThreshold = 100;
 int processImage(Mat src, Mat& gray) {
 	cvtColor( src, gray, COLOR_BGR2GRAY );
 	Mat canny_output;

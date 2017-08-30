@@ -155,6 +155,7 @@ double LaneMarkerDetector::distToLaneColor(Vec3b& color) {
 
 void LaneMarkerDetector::laneMarkerDetector(Mat& img, Mat& src, Mat& temp)
 {
+	//decide the image scope
 	int cols = img.cols;
 	int rows = img.rows;
 	int start = rows * 3/4;
