@@ -14,6 +14,8 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+using namespace cv;
+using namespace std;
 
 namespace utility {
 
@@ -22,6 +24,13 @@ namespace utility {
  * @return the blur value, use a threshold to detect blurness
  */
 double blurDetection(cv::Mat& src);
+
+/**
+ * Canny threshold test
+ */
+void thresh_callback(int thresh, void* gray);
+int adjustTest(Mat& src);
+
 
 
 }

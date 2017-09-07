@@ -12,6 +12,7 @@
 #include "data_pool.h"
 #include "udp_socket.h"
 #include "car_control.h"
+#include "utility.h"
 
 string imagepath = "/home/lkang/Desktop/caltech-lanes/cordova1/";
 
@@ -20,59 +21,50 @@ void publish_points(Mat& img, Points& points, const Vec3b& color);
 int processImage(Mat src, Mat& gray);
 void test(Mat src, Mat& gray);
 
-void startUdpServer();
-
 
 void processVideo();
 void blurDetection(Mat& frame);
 
 int changePixelColor();
-int adjustTest();
 
 void startThreads();
+
 
 int main( int, char** argv )
 {
 
 	//processVideo();
-	//adjustTest();
 
 	//cout<<"Hello Wolrd"<<endl;
 	//startUdpServer();
 
 
-/*	Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
+	/*
+	Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
 	inversePerspectiveMapping(canny_output, ipm);
 	imshow( "ipm", ipm);*/
 
 
 
-/*	string in = string("/home/lkang/Desktop/blur/blur.jpg");
+	string in = string("/home/lkang/Desktop/blur/blur2.jpg");
 	Mat src = imread(in, IMREAD_COLOR);
-	Mat gray;
-	cvtColor(src, gray, CV_BGR2GRAY);
-	blurDetection(gray);*/
+	double clearness = utility::blurDetection(src);
+	cout<<clearness<<endl;
 
 
-	//changePixelColor();
 
+	utility::adjustTest(src);
+	// startThreads();
 
-	//startUdpServer();
-	/*
-	string test = "fdafsadfdsa";
-	vector<unsigned char> data(test.begin(), test.end());
-	for(int i = 0; i < data.size(); ++i) {
-		cout<<data[i]<<endl;
-	}
-	cout<<"the end"<<endl;
-	*/
-
-	//startThreads();
 
 	cout << currentTimeMillis() << endl;
 
 	return(0);
 }
+
+
+
+
 
 
 
@@ -93,7 +85,6 @@ void startThreads() {
 	}
 
 	delete dataPool;
-
 }
 
 
@@ -150,14 +141,6 @@ int changePixelColor() {
 }
 
 
-void blurDetection(Mat& frame) {
-	Mat laplace;
-	Laplacian(frame, laplace, CV_16S, 3);
-	Scalar     mean;
-	Scalar     stddev;
-	meanStdDev (laplace, mean, stddev);
-	cout<<"blurness:"<<stddev<<endl;
-}
 
 
 
