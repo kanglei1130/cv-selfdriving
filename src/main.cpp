@@ -14,7 +14,7 @@
 #include "car_control.h"
 #include "utility.h"
 
-string imagepath = "/home/lkang/Desktop/caltech-lanes/cordova1/";
+string imagepath = "/home/wei/Pictures/1.jpg/";
 
 void inversePerspectiveMapping(Mat& input, Mat& output);
 void publish_points(Mat& img, Points& points, const Vec3b& color);
@@ -28,6 +28,7 @@ void blurDetection(Mat& frame);
 int changePixelColor();
 
 void startThreads();
+void sendBackTime();
 
 
 int main( int, char** argv )
@@ -46,32 +47,43 @@ int main( int, char** argv )
 
 
 
-	string in = string("/home/lkang/Desktop/blur/blur2.jpg");
-	Mat src = imread(in, IMREAD_COLOR);
-	double clearness = utility::blurDetection(src);
-	cout<<clearness<<endl;
+	//string in = string("/home/wei/Pictures/1.jpg/");
+	//Mat src = imread(in, IMREAD_COLOR);
+	//double clearness = utility::blurDetection(src);
+	//cout<<clearness<<endl;
 
 
 
-	utility::adjustTest(src);
-	// startThreads();
+	//utility::adjustTest(src);
+	startThreads();
+	//sendBackTime();
 
 
-	cout << currentTimeMillis() << endl;
+	//cout << currentTimeMillis() << endl;
 
 	return(0);
 }
 
 
+/*
+void sendBackTime(){
+	DataPool* dataPool = new DataPool();
+	int num = 1;
+	pthread_t threads[num];
 
+	pthread_create (&(threads[0]), NULL, &CarControl::sendTimeBack, dataPool);
+	cout << currentTimeMillis() << endl;
 
-
+	delete dataPool;
+}
+*/
 
 
 void startThreads() {
 	/*if there is an error about bind address or address already used
 	 *reconnect the tethering mode on the phone(turn off then turn on)
 	*/
+
 	DataPool* dataPool = new DataPool();
 
 	int num = 2;
@@ -86,6 +98,8 @@ void startThreads() {
 
 	delete dataPool;
 }
+
+
 
 
 

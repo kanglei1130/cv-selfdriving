@@ -9,6 +9,8 @@
 #include <sstream>
 #include <vector>
 #include <opencv2/opencv.hpp>
+#include <sstream>
+
 
 
 static const std::string base64_chars =
@@ -58,37 +60,96 @@ std::string base64_decode(std::string const& encoded_string) {
     return ret;
 }
 
-/*std::string IntToString (int number)
+
+std::string LongToString (long number)
 {
   std::ostringstream oss;
-
   // Works just like cout
   oss<< number;
-
   // Return the underlying string
   return oss.str();
-}*/
+}
+
+std::string BoolToString (bool number)
+{
+  std::ostringstream oss;
+  // Works just like cout
+  oss<< number;
+  // Return the underlying string
+  return oss.str();
+}
+
 
 //this thread process data from the car, which include the image and speed status data.
 void* CarControl::UDPReceiver(void* param){
 	cout<<"Enter UDP Receiver from Car"<<endl;;
 	DataPool *dataPool = (DataPool*)param;
 
-	string remoteip;
-	int32_t remoteport;
+	string kRemoteIP;
+	int32_t kRemotePort;
 	string data;
 
 	while(dataPool->running) {
-		dataPool->udpsocketCar_->ReceiveFrom(remoteip, remoteport, data);
+		dataPool->udpsocketCar_->ReceiveFrom(kRemoteIP, kRemotePort, data);
 		if(data.length()>0){
-			cout<<"udpsocketCar_"<<endl;
+			//////////
+
 			Json::Value parsedFromString;
 			Json::Reader reader;
 			assert(reader.parse(data, parsedFromString));
-
 			bool parsingSuccessful = reader.parse(data, parsedFromString);
-
 			if(parsingSuccessful) {
+				std::string timeStamp = parsedFromString["videoSendTime"].asString();
+			    std::string SequenceNo = parsedFromString["Sequence"].asString();
+			    std::string isIFrame = parsedFromString["isIFrame"].asString();
+			    std::string originalDataSize = parsedFromString["originalDataSize"].asString();
+			    //long videoLength  = parsedFromString["frameData"].toStyledString().length()-2;
+			    std::string comDataSize = parsedFromString["compressedDataSize"].asString();
+			    std::string roundBackTime = parsedFromString["roundBackTime"].asString();
+
+			    //CarControl sendData;
+			    //sendData.timeStamp_ = timeStamp;
+			    //sendData.SequenceNo_ = SequenceNo;
+			    //sendData.dataLength_ = videoLength;
+			    Json::Value jsonData;
+			    jsonData["videoSendTime"] = timeStamp;
+			    jsonData["PCtime"] = LongToString(currentTimeMillis());
+			    jsonData["Sequence"] = SequenceNo;
+			    jsonData["isIFrame"] = isIFrame;
+			    jsonData["originalDataSize"] = originalDataSize;
+			    jsonData["compressedDataSize"] = comDataSize;
+			    //jsonData["PCReceivedDataSize"] = LongToString(videoLength);
+			    jsonData["roundBackTime"] = roundBackTime;
+
+
+			    cout<<jsonData.toStyledString()<<endl;
+			    // write JSON object to a string
+			    Json::FastWriter fastWriter;
+			    std::string output = fastWriter.write(jsonData);
+			    //std::string output = parsedFromString["video_"].asString();
+
+				//string sendBackData = timeStamp + SequenceNo + LongToString(videoLength);
+				//dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,sendBackData);
+				dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,output);
+
+				//string imageData = parsedFromString["video_"].asString();
+				//dataPool->udpsocketController_->SendTo(PC_IP, PC_Port, imageData);
+
+				cout<<timeStamp<<endl;
+				cout<<SequenceNo<<endl;
+				//cout<<sendBackData<<endl;
+				cout<<"udpsocketCar_"<<endl;
+			}
+
+			//cout<<data.substr(0,12)<<endl;
+			//cout<<"udpsocketCar_"<<endl;
+			//Json::Value parsedFromString;
+			//Json::Reader reader;
+			//assert(reader.parse(data, parsedFromString));
+
+			//bool parsingSuccessful = reader.parse(data, parsedFromString);
+
+			/*if(parsingSuccessful) {
 				std::string parsedType = parsedFromString["type_"].toStyledString();
 				std::string image = "\"image\"\n";
 				std::string status = "\"status\"\n";
@@ -130,9 +191,13 @@ void* CarControl::UDPReceiver(void* param){
 			} else {
 				cout<<"udpsocketCar json format error:" + data<<endl;
 			}
+			*/
 			//long time = (long)parsedFromString["time_"].asInt64 ();
 			//cout<<currentTimeMillis() - time<<endl;
 		}
+
+		//cout<<"data"<<endl;
+
 	}
 	cout<<"UDPReceiver exit"<<endl;
 	pthread_exit(NULL);
@@ -149,7 +214,7 @@ void* CarControl::ControlPanel(void* param)
 	int32_t kRemotePortController;
 	string data;
 
-	while(dataPool->running) {
+	while(!dataPool->running) {
 		dataPool->udpsocketController_->ReceiveFrom(kRemoteIPController, kRemotePortController, data);
 		if(data.length()>0){
 			//we don't need to parse the data to check if it is controller data, because it comes from controller.
@@ -186,6 +251,9 @@ void* CarControl::ControlPanel(void* param)
 			}else{
 				cout<<"unknown impute from controller"<<endl;
 			}
+
+			cout<<"data"<<endl;
+
 		} else {
 			cout<<"No data is been received from Controller" + data<<endl;
 		}
@@ -195,6 +263,7 @@ void* CarControl::ControlPanel(void* param)
 	cout<<"UDPReceiver exit"<<endl;
 	pthread_exit(NULL);
 }
+
 
 
 /*ReceiverSocket socket(kUdpPort);
@@ -212,6 +281,35 @@ void* CarControl::ControlPanel(void* param)
 	    }
 	}*/
 
+/*
+void* CarControl::sendTimeBack(void* param){
+	cout<<"receive and send back time stamp"<<endl;;
+	DataPool *dataPool = (DataPool*)param;
+
+	string remoteip;
+	int32_t remoteport;
+	string PC_IP;
+	int32_t PC_Port;
+	string data;
+
+	while(dataPool->running) {
+		dataPool->udpsocketCar_->ReceiveFrom(remoteip, remoteport, data);
+		if(data.length()>0){
+			string timeStamp = data.substr(0,12);
+			string imageData = data.substr(13,data.length());
+			cout<<"imageData"<<endl;
+
+			dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,timeStamp);
+			dataPool->udpsocketToShowVideo_->SendTo(PC_IP, PC_Port, imageData);
+			cout<<"udpsocketToShowVideo"<<endl;
+
+
+		}
+	}
+	cout<<"UDPReceiver exit"<<endl;
+	pthread_exit(NULL);
+}
+*/
 
 
 

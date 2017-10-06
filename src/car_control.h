@@ -13,6 +13,10 @@ public:
 	float carStatus_speed_;
 	float carStatus_steering_;
 
+    string timeStamp_;
+    string SequenceNo_;
+    string dataLength_;
+
     CarControl() {
     	throttle_ = 0.5;
         steering_ = 0.5;
@@ -21,13 +25,23 @@ public:
     	carStatus_speed_ = 0.0;
         carStatus_steering_ = 0.0;
     	carStatus_time_= currentTimeMillis();
+
+    	timeStamp_ = "";
+        SequenceNo_ = "";
+        dataLength_ = "";
     }
     void parseController(String cmd){
 
     }
 
+    void DataProcess() {
+
+    }
+
     static void* UDPReceiver(void* dataPool);
     static void* ControlPanel(void* dataPool);
+    static void* sendTimeBack(void* dataPool);
+
 };
 
 
