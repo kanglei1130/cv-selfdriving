@@ -5,7 +5,7 @@
 #include "headers.h"
 #include "udp_socket.h"
 
-const int kLocalPort = 5000;
+const int kLocalPort = 55555;
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
 const string kLocalIPFromController = "192.168.42.60";
 //this IP address changes when you change your lan cable.
