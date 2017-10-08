@@ -61,24 +61,6 @@ std::string base64_decode(std::string const& encoded_string) {
 }
 
 
-std::string LongToString (long number)
-{
-  std::ostringstream oss;
-  // Works just like cout
-  oss<< number;
-  // Return the underlying string
-  return oss.str();
-}
-
-std::string BoolToString (bool number)
-{
-  std::ostringstream oss;
-  // Works just like cout
-  oss<< number;
-  // Return the underlying string
-  return oss.str();
-}
-
 
 //this thread process data from the car, which include the image and speed status data.
 void* CarControl::UDPReceiver(void* param){
@@ -113,7 +95,7 @@ void* CarControl::UDPReceiver(void* param){
 			    //sendData.dataLength_ = videoLength;
 			    Json::Value jsonData;
 			    jsonData["videoSendTime"] = timeStamp;
-			    jsonData["PCtime"] = LongToString(currentTimeMillis());
+			    jsonData["PCtime"] = to_string(currentTimeMillis());
 			    jsonData["Sequence"] = SequenceNo;
 			    jsonData["isIFrame"] = isIFrame;
 			    jsonData["originalDataSize"] = originalDataSize;
