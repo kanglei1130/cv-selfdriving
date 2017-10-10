@@ -92,11 +92,7 @@ std::string parseH264Data (string data){
 		return output;
 	}
 
-<<<<<<< HEAD
 }
-=======
-
->>>>>>> 282e4e6848c4f3a3e288b2bd64ee36cb24af8ad1
 //this thread process data from the car, which include the image and speed status data.
 void* CarControl::UDPReceiver(void* param){
 	cout<<"Enter UDP Receiver from Car"<<endl;;
@@ -116,66 +112,8 @@ void* CarControl::UDPReceiver(void* param){
 			//dataPool->udpsocketController_->SendTo(PC_IP, PC_Port, imageData);
 			cout<<"received video data"<<endl;
 		}
-/*
- * This is for parse data from controller and OpenCV data
- * before using , change IP and Port Number and comment
- * "dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,parseH264Data(data));"
- */
-		  /*Json::Value parsedFromString;
-			Json::Reader reader;
-			assert(reader.parse(data, parsedFromString));
-<<<<<<< HEAD
-=======
-			bool parsingSuccessful = reader.parse(data, parsedFromString);
-			if(parsingSuccessful) {
-				std::string timeStamp = parsedFromString["videoSendTime"].asString();
-			    std::string SequenceNo = parsedFromString["Sequence"].asString();
-			    std::string isIFrame = parsedFromString["isIFrame"].asString();
-			    std::string originalDataSize = parsedFromString["originalDataSize"].asString();
-			    //long videoLength  = parsedFromString["frameData"].toStyledString().length()-2;
-			    std::string comDataSize = parsedFromString["compressedDataSize"].asString();
-			    std::string roundBackTime = parsedFromString["roundBackTime"].asString();
 
-			    //CarControl sendData;
-			    //sendData.timeStamp_ = timeStamp;
-			    //sendData.SequenceNo_ = SequenceNo;
-			    //sendData.dataLength_ = videoLength;
-			    Json::Value jsonData;
-			    jsonData["videoSendTime"] = timeStamp;
-			    jsonData["PCtime"] = to_string(currentTimeMillis());
-			    jsonData["Sequence"] = SequenceNo;
-			    jsonData["isIFrame"] = isIFrame;
-			    jsonData["originalDataSize"] = originalDataSize;
-			    jsonData["compressedDataSize"] = comDataSize;
-			    //jsonData["PCReceivedDataSize"] = LongToString(videoLength);
-			    jsonData["roundBackTime"] = roundBackTime;
-
-
-			    cout<<jsonData.toStyledString()<<endl;
-			    // write JSON object to a string
-			    Json::FastWriter fastWriter;
-			    std::string output = fastWriter.write(jsonData);
-			    //std::string output = parsedFromString["video_"].asString();
-
-				//string sendBackData = timeStamp + SequenceNo + LongToString(videoLength);
-				//dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,sendBackData);
-				dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,output);
-
-				//string imageData = parsedFromString["video_"].asString();
-				//dataPool->udpsocketController_->SendTo(PC_IP, PC_Port, imageData);
-
-				cout<<timeStamp<<endl;
-				cout<<SequenceNo<<endl;
-				//cout<<sendBackData<<endl;
-				cout<<"udpsocketCar_"<<endl;
-			}
-
-			//cout<<data.substr(0,12)<<endl;
-			//cout<<"udpsocketCar_"<<endl;
-			//Json::Value parsedFromString;
-			//Json::Reader reader;
-			//assert(reader.parse(data, parsedFromString));
->>>>>>> 282e4e6848c4f3a3e288b2bd64ee36cb24af8ad1
+		/*
 
 			bool parsingSuccessful = reader.parse(data, parsedFromString);
 

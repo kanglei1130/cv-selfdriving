@@ -92,6 +92,16 @@ int32_t UdpSocket::SendTo(const string& ip, const int32_t& port, const string& s
   return sendto(udp_socket_id_, send_data.c_str(), send_data.size(), 0, (struct sockaddr *)&udp_client_addr_, sizeof(struct sockaddr));  
 }
 
+int32_t UdpSocket::SendByteTo(const string& ip, const int32_t port, char *data, int len)
+{
+	udp_client_addr_.sin_family = AF_INET;
+	udp_client_addr_.sin_port = htons(port);
+	udp_client_addr_.sin_addr.s_addr = inet_addr(ip.c_str());
+	bzero(&(udp_client_addr_.sin_zero),8);
+	return sendto(udp_socket_id_, data, len, 0, (struct sockaddr *)&udp_client_addr_, sizeof(struct sockaddr));
+}
+
+
 int32_t UdpSocket::ReceiveFrom(string& ip, int32_t& port, string& data)
 {
   int32_t addr_len = sizeof(struct sockaddr);

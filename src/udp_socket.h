@@ -54,6 +54,9 @@ public:
    */ 
   int32_t SendTo(const string& ip, const int32_t& port, const string& data);
 
+
+  int32_t SendByteTo(const string& ip, const int32_t port, char* data, int32_t len);
+
 //====================================================================================================
   /**
    * Once the socket bind to a ip address and a port number, it is able to hear that port

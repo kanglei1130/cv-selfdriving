@@ -38,8 +38,6 @@ int main( int, char** argv )
 
 	//cout<<"Hello Wolrd"<<endl;
 	//startUdpServer();
-
-
 	/*
 	Mat ipm = Mat::zeros(src.rows, src.cols, src.type());
 	inversePerspectiveMapping(canny_output, ipm);
@@ -55,13 +53,18 @@ int main( int, char** argv )
 
 
 	//utility::adjustTest(src);
-	startThreads();
+
+
+	// startThreads();
 	//sendBackTime();
 
 
 	//cout << currentTimeMillis() << endl;
 
-	return(0);
+	utility::convertFileToVideo();
+
+	return 0;
+
 }
 
 

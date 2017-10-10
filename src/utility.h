@@ -14,11 +14,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+#include "udp_socket.h"
+#include "headers.h"
+
 using namespace cv;
 using namespace std;
 
 namespace utility {
 
+void convertFileToVideo();
 /**
  * @param src the input MAT image, with color
  * @return the blur value, use a threshold to detect blurness
@@ -30,8 +34,6 @@ double blurDetection(cv::Mat& src);
  */
 void thresh_callback(int thresh, void* gray);
 int adjustTest(Mat& src);
-
-
 
 }
 
