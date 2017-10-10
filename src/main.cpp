@@ -8,7 +8,6 @@
 
 #include "headers.h"
 #include "lane_marker_detector.h"
-#include "receiver_socket.h"
 #include "data_pool.h"
 #include "udp_socket.h"
 #include "car_control.h"

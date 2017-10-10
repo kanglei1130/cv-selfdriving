@@ -121,5 +121,22 @@ int32_t UdpSocket::ReceiveFrom(string& ip, int32_t& port, string& data)
 }
 
 
+/*
+ *
+const std::vector<unsigned char> ReceiverSocket::GetPacket() const {
+  // Get the data from the next incoming packet.
+  sockaddr_in remote_addr;
+  socklen_t addrlen = sizeof(remote_addr);
+  const int num_bytes = recvfrom(socket_handle_, (void *)buffer_, buffer_size_,
+                                 0, (sockaddr *)&remote_addr, &addrlen);
+  // Copy the data (if any) into the data vector.
+  std::vector<unsigned char> data;
+  if (num_bytes > 0) {
+    data.insert(data.end(), &buffer_[0], &buffer_[num_bytes]);
+  }
+  return data;
+}
+ */
+
 
 
