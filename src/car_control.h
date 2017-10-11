@@ -2,6 +2,8 @@
 #define CAR_CONTROL_H_
 
 #include "headers.h"
+#include <gst/gst.h>
+
 
 class CarControl {
 public:
@@ -16,6 +18,7 @@ public:
     string timeStamp_;
     string SequenceNo_;
     string dataLength_;
+
 
     CarControl() {
     	throttle_ = 0.5;
@@ -40,7 +43,7 @@ public:
 
     static void* UDPReceiver(void* dataPool);
     static void* ControlPanel(void* dataPool);
-    static void* sendTimeBack(void* dataPool);
+    static void* GstreamerReceiver(void* dataPool);
 
 };
 

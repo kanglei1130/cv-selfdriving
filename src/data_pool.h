@@ -9,9 +9,7 @@ const int kLocalPort = 55555;
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
 const string kLocalIPFromController = "192.168.42.60";
 //this IP address changes when you change your lan cable.
-const string kLocalIPFromCar = "192.168.8.20";
-const string PC_IP = "192.168.8.5";
-const int PC_Port = 1213;
+const string kLocalIPFromCar = "192.168.10.102";
 
 
 //Car's IP address via the WIFI
@@ -37,23 +35,42 @@ public:
 	//UdpSocket* udpsocketToShowVideo_;
 
 
+	bool use_gst_ = false;
+    // frame data for gstreamer
+    int gst_width_ = 640;
+    int gst_height_ = 480;
+    int gst_port_ = 6666;
+    string gst_h264_video_file_;
+    string gst_h264_raw_data_;
+    bool display_video_ = true;
+
 	bool running;
 
+	int argc;
+	char** argv;
+
 	DataPool() {
+
+	}
+
+	DataPool(int argc, char** argv) {
 		//start two socket with different IP
 
 		udpsocketController_ = new UdpSocket(kPacketSize);
 		udpsocketController_->UdpSocketSetUp(kLocalIPFromCar, kLocalPort+1);
-/*
-		////////////////////////////////
-		udpsocketToShowVideo_ = new UdpSocket(kPacketSize);
-		udpsocketToShowVideo_->UdpSocketSetUp(kLocalIPFromCar, kLocalPort+1);
-*/		///////////////////////////////
+
 		udpsocketCar_ = new UdpSocket(kPacketSize);
 		udpsocketCar_->UdpSocketSetUp(kLocalIPFromCar, kLocalPort);
 
 		running = true;
 		cout<<"DataPool is runing"<<endl;
+
+		long time = currentTimeMillis();
+		gst_h264_raw_data_ = to_string(time) + ".raw";
+		gst_h264_video_file_ = to_string(time) + ".h264";
+
+		this->argc = argc;
+		this->argv = argv;
 	}
 
 	~DataPool() {

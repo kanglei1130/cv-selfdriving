@@ -9,7 +9,9 @@
 namespace utility {
 
 void convertFileToVideo() {
-	std::ifstream ifs ("/home/lkang/Desktop/1507593114574.h264", std::ifstream::in);
+	std::ifstream ifs ("/home/lkang/workspace/cv-selfdriving/1507685090466.raw", std::ifstream::in);
+
+
 	string len = "";
 	char c;
 	UdpSocket* udpsocket = new UdpSocket(kPacketSize);
@@ -26,8 +28,8 @@ void convertFileToVideo() {
 	    long sz = std::stol(len);
 	    len = "";
 	    ifs.read(buffer, sz);
-	    udpsocket->SendByteTo("127.0.0.1", 55555, buffer, sz);
-	    usleep(1000);
+	    udpsocket->SendByteTo("127.0.0.1", 6666, buffer, sz);
+	    usleep(100*1000);
 	}
 	ifs.close();
 	delete buffer;

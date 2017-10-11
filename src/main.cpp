@@ -6,6 +6,7 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
 
+
 #include "headers.h"
 #include "lane_marker_detector.h"
 #include "data_pool.h"
@@ -26,11 +27,11 @@ void blurDetection(Mat& frame);
 
 int changePixelColor();
 
-void startThreads();
+void startThreads(int argc, char** argv);
 void sendBackTime();
 
 
-int main( int, char** argv )
+int main( int argc, char** argv )
 {
 
 	//processVideo();
@@ -53,14 +54,16 @@ int main( int, char** argv )
 
 	//utility::adjustTest(src);
 
-
-	// startThreads();
+	// startThreads(argc, argv);
 	//sendBackTime();
-
 
 	//cout << currentTimeMillis() << endl;
 
 	utility::convertFileToVideo();
+
+	// processVideo();
+
+
 
 	return 0;
 
@@ -81,18 +84,19 @@ void sendBackTime(){
 */
 
 
-void startThreads() {
+void startThreads(int argc, char** argv) {
 	/*if there is an error about bind address or address already used
 	 *reconnect the tethering mode on the phone(turn off then turn on)
 	*/
 
-	DataPool* dataPool = new DataPool();
+	DataPool* dataPool = new DataPool(argc, argv);
 
-	int num = 2;
+	int num = 3;
 	pthread_t threads[num];
 
 	pthread_create (&(threads[0]), NULL, &CarControl::UDPReceiver, dataPool);
 	pthread_create (&(threads[1]), NULL, &CarControl::ControlPanel, dataPool);
+	pthread_create (&(threads[2]), NULL, &CarControl::GstreamerReceiver, dataPool);
 
 	for(int i = 0; i < num; ++i) {
 		pthread_join(threads[i], NULL);
@@ -106,7 +110,7 @@ void startThreads() {
 
 
 void processVideo() {
-	VideoCapture cap("/home/lkang/Desktop/test.mp4"); // open the default camera
+	VideoCapture cap("/home/lkang/Desktop/sample.h264"); // open the default camera
 
 	if(!cap.isOpened()) { // check if we succeeded
 		cout<<"not able to open"<<endl;
@@ -116,17 +120,18 @@ void processVideo() {
 
 	int counter = 0;
 	for(;;) {
+		counter ++;
 		Mat frame;
 		cap >> frame; // get a new frame from camera
 		if(frame.empty()) {
 			break;
 		}
-		int num = processImage(frame, gray);
-		imshow("gray", gray);
-		/*waitKey(100);
-		usleep(1000000);*/
-		waitKey(10);
+
+		// int num = processImage(frame, gray);
+		imshow("gray", frame);
+		waitKey(100);
 		usleep(0);
+
 		//break;
 	}
 	cout<<counter<<endl;

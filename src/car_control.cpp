@@ -12,53 +12,6 @@
 
 
 
-static const std::string base64_chars =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz"
-        "0123456789+/";
-
-static inline bool is_base64(unsigned char c) {
-    return (isalnum(c) || (c == '+') || (c == '/'));
-}
-
-std::string base64_decode(std::string const& encoded_string) {
-    int in_len = encoded_string.size();
-    int i = 0;
-    int j = 0;
-    int in_ = 0;
-    unsigned char char_array_4[4], char_array_3[3];
-    std::string ret;
-
-    while (in_len-- && (encoded_string[in_] != '=') && is_base64(encoded_string[in_])) {
-        char_array_4[i++] = encoded_string[in_]; in_++;
-        if (i == 4) {
-            for (i = 0; i < 4; i++)
-            	char_array_4[i] = base64_chars.find(char_array_4[i]);
-            char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-            char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-            char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-
-            for (i = 0; (i < 3); i++)
-                ret += char_array_3[i];
-            i = 0;
-        }
-    }
-
-    if (i) {
-        for (j = i; j < 4; j++)
-            char_array_4[j] = 0;
-        for (j = 0; j < 4; j++)
-            char_array_4[j] = base64_chars.find(char_array_4[j]);
-
-        char_array_3[0] = (char_array_4[0] << 2) + ((char_array_4[1] & 0x30) >> 4);
-        char_array_3[1] = ((char_array_4[1] & 0xf) << 4) + ((char_array_4[2] & 0x3c) >> 2);
-        char_array_3[2] = ((char_array_4[2] & 0x3) << 6) + char_array_4[3];
-        for (j = 0; (j < i - 1); j++)
-        	ret += char_array_3[j];
-    }
-    return ret;
-}
-
 std::string parseH264Data (string data){
 	Json::Value parsedFromString;
 	Json::Reader reader;
@@ -90,8 +43,33 @@ std::string parseH264Data (string data){
 		std::string output = fastWriter.write(jsonData);
 		return output;
 	}
-
 }
+
+
+/**
+ * The first character must be '{'
+ */
+int getJsonHeaderIndex(string& data) {
+	int hend = 0;
+	int num_left_brace = 0, num_right_brace = 0;
+	for(int i = 0; i < data.size(); ++i) {
+		char ch = data[i];
+		if (ch == '{') {
+			num_left_brace++;
+		} else if (ch == '}') {
+			num_right_brace++;
+		} else {
+
+		}
+		// cout<<"ch:"<<ch<<" "<<num_left_brace<<" "<<num_right_brace<<endl;
+		if (num_left_brace == num_right_brace) {
+			hend = i;
+			break;
+		}
+	}
+	return hend;
+}
+
 //this thread process data from the car, which include the image and speed status data.
 void* CarControl::UDPReceiver(void* param){
 	cout<<"Enter UDP Receiver from Car"<<endl;;
@@ -101,19 +79,30 @@ void* CarControl::UDPReceiver(void* param){
 	int32_t kRemotePort;
 	string data;
 
+	std::ofstream ofs (dataPool->gst_h264_raw_data_, std::ifstream::app);
+
 	while(dataPool->running) {
 		dataPool->udpsocketCar_->ReceiveFrom(kRemoteIP, kRemotePort, data);
 		if(data.length()>0){
 			//send data back to android
-			dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,parseH264Data(data));
+			int hend = getJsonHeaderIndex(data);
+			int len = data.size();
+			assert(hend != 0);
+			std::string header = data.substr(0, hend + 1);
+			std::string body = data.substr(hend + 1);
 
-			//string imageData = parsedFromString["video_"].asString();
-			//dataPool->udpsocketController_->SendTo(PC_IP, PC_Port, imageData);
-			cout<<"received video data"<<endl;
+			dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,parseH264Data(header));
+
+			if (dataPool->use_gst_) {
+				dataPool->udpsocketCar_->SendTo("127.0.0.1", dataPool->gst_port_, body);
+			}
+
+			string frame_separate = to_string(len) + "\n";
+			ofs.write(frame_separate.c_str(), frame_separate.size());
+			ofs.write(body.c_str(), len);
 		}
 
 		/*
-
 			bool parsingSuccessful = reader.parse(data, parsedFromString);
 
 			if(parsingSuccessful) {
@@ -159,6 +148,7 @@ void* CarControl::UDPReceiver(void* param){
 				cout<<"udpsocketCar json format error:" + data<<endl;
 			}*/
 	}
+	ofs.close();
 	cout<<"UDPReceiver exit"<<endl;
 	pthread_exit(NULL);
 }
@@ -220,7 +210,57 @@ void* CarControl::ControlPanel(void* param)
 			//long time = (long)parsedFromString["time_"].asInt64 ();
 			//cout<<currentTimeMillis() - time<<endl;
 	}
-	cout<<"UDPReceiver exit"<<endl;
+	cout<<"ControlPanel exit"<<endl;
+	pthread_exit(NULL);
+}
+
+
+void* CarControl::GstreamerReceiver(void* param){
+	DataPool *dataPool = (DataPool*)param;
+	if (!dataPool->use_gst_) {
+		pthread_exit(NULL);
+	}
+	cout<<"Enter Gstreamer Receiver from Car"<<endl;;
+
+	GstElement *pipeline;
+	GstBus *bus;
+	GstMessage *msg;
+	/* Initialize GStreamer */
+	gst_init (&dataPool->argc, &dataPool->argv);
+
+	/* Build the pipeline */
+	std::string udpsrc = "udpsrc port=" + to_string(dataPool->gst_port_);
+	std::string video = "video/x-h264,width=" + to_string(dataPool->gst_width_) + ",height=" + to_string(dataPool->gst_height_)
+			+ ",framerate=10/1,aligment=au,stream-format=avc";
+    std::string file = "filesink location=" + dataPool->gst_h264_video_file_;
+
+
+    std:string input = "";
+
+    if (dataPool->display_video_) {
+    	input = udpsrc + " ! " + video + " ! " + "avdec_h264" + " ! " + "autovideosink";
+    } else {
+    	input = udpsrc + " ! " + video + " ! " + "avdec_h264" + " ! " + "avimux" + " ! " + file;
+    }
+
+	pipeline = gst_parse_launch (input.c_str(), NULL);
+
+
+	/* Start playing */
+	gst_element_set_state (pipeline, GST_STATE_PLAYING);
+
+	/* Wait until error or EOS */
+	bus = gst_element_get_bus (pipeline);
+
+	msg = gst_bus_timed_pop_filtered (bus, GST_CLOCK_TIME_NONE, (GstMessageType) (GST_MESSAGE_ERROR | GST_MESSAGE_EOS));
+
+	/* Free resources */
+	if (msg != NULL) {
+		gst_message_unref (msg);
+	}
+	gst_object_unref (bus);
+	gst_element_set_state (pipeline, GST_STATE_NULL);
+	gst_object_unref (pipeline);
 	pthread_exit(NULL);
 }
 
