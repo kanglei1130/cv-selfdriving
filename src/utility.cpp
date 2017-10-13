@@ -8,9 +8,8 @@
 
 namespace utility {
 
-void convertFileToVideo() {
-	std::ifstream ifs ("/home/lkang/workspace/cv-selfdriving/1507685090466.raw", std::ifstream::in);
-
+void convertFileToVideo(string raw) {
+	std::ifstream ifs (raw.c_str(), std::ifstream::in);
 
 	string len = "";
 	char c;
@@ -29,7 +28,7 @@ void convertFileToVideo() {
 	    len = "";
 	    ifs.read(buffer, sz);
 	    udpsocket->SendByteTo("127.0.0.1", 6666, buffer, sz);
-	    usleep(100*1000);
+	    usleep(10*1000);
 	}
 	ifs.close();
 	delete buffer;

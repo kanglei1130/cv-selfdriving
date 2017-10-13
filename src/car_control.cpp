@@ -37,7 +37,7 @@ std::string parseH264Data (string data){
 		jsonData["compressedDataSize"] = comDataSize;
 		jsonData["roundBackTime"] = roundBackTime;
 
-		cout<<jsonData.toStyledString()<<endl;
+		// cout<<jsonData.toStyledString()<<endl;
 		// write JSON object to a string
 		Json::FastWriter fastWriter;
 		std::string output = fastWriter.write(jsonData);
@@ -91,15 +91,16 @@ void* CarControl::UDPReceiver(void* param){
 			std::string header = data.substr(0, hend + 1);
 			std::string body = data.substr(hend + 1);
 
+
 			dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,parseH264Data(header));
 
 			if (dataPool->use_gst_) {
 				dataPool->udpsocketCar_->SendTo("127.0.0.1", dataPool->gst_port_, body);
 			}
 
-			string frame_separate = to_string(len) + "\n";
+			string frame_separate = to_string(body.size()) + "\n";
 			ofs.write(frame_separate.c_str(), frame_separate.size());
-			ofs.write(body.c_str(), len);
+			ofs.write(body.c_str(), body.size());
 		}
 
 		/*
@@ -231,7 +232,7 @@ void* CarControl::GstreamerReceiver(void* param){
 	/* Build the pipeline */
 	std::string udpsrc = "udpsrc port=" + to_string(dataPool->gst_port_);
 	std::string video = "video/x-h264,width=" + to_string(dataPool->gst_width_) + ",height=" + to_string(dataPool->gst_height_)
-			+ ",framerate=10/1,aligment=au,stream-format=avc";
+			+ ",framerate=" + to_string(dataPool->gst_frame_rate_) + "/1,aligment=au,stream-format=avc";
     std::string file = "filesink location=" + dataPool->gst_h264_video_file_;
 
 

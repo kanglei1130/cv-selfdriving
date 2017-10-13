@@ -22,7 +22,7 @@ using namespace std;
 
 namespace utility {
 
-void convertFileToVideo();
+void convertFileToVideo(string file);
 /**
  * @param src the input MAT image, with color
  * @return the blur value, use a threshold to detect blurness

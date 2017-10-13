@@ -35,10 +35,11 @@ public:
 	//UdpSocket* udpsocketToShowVideo_;
 
 
-	bool use_gst_ = false;
+	bool use_gst_ = true;
     // frame data for gstreamer
     int gst_width_ = 640;
     int gst_height_ = 480;
+    int gst_frame_rate_ = 10;
     int gst_port_ = 6666;
     string gst_h264_video_file_;
     string gst_h264_raw_data_;
@@ -49,9 +50,6 @@ public:
 	int argc;
 	char** argv;
 
-	DataPool() {
-
-	}
 
 	DataPool(int argc, char** argv) {
 		//start two socket with different IP
