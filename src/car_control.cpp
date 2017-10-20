@@ -91,7 +91,7 @@ void* CarControl::UDPReceiver(void* param){
 			std::string header = data.substr(0, hend + 1);
 			std::string body = data.substr(hend + 1);
 
-
+			std::cout<<header<<std::endl;
 			dataPool->udpsocketCar_->SendTo(kRemoteIP, kRemotePort,parseH264Data(header));
 
 			if (dataPool->use_gst_) {

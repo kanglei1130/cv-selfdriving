@@ -54,12 +54,13 @@ int main( int argc, char** argv )
 
 	//utility::adjustTest(src);
 
-	// startThreads(argc, argv);
+	startThreads(argc, argv);
 	//sendBackTime();
 
 	//cout << currentTimeMillis() << endl;
 
-	utility::convertFileToVideo();
+	//string rawvideo = string("/home/lkang/Dropbox/projects/selfdriving/figures/streaming/videos/") + string("Wi-Fi_640_client.raw");
+	// utility::convertFileToVideo(rawvideo);
 
 	// processVideo();
 
