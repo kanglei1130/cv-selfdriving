@@ -8,6 +8,7 @@
 
 namespace utility {
 
+
 void convertFileToVideo(string raw) {
 	std::ifstream ifs (raw.c_str(), std::ifstream::in);
 

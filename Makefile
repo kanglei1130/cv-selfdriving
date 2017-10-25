@@ -15,7 +15,7 @@ OTHERLIBS = -ljsoncpp -lpthread
 
 LIBS = $(CVLIBS) $(GSTREAMERLIBS) $(OTHERLIBS)
 
-remote_control: ./src/main.o ./src/car_control.o ./src/lane_marker_detector.o ./src/udp_socket.o ./src/utility.o
+remote_control: ./src/main.o ./src/remote_controller.o ./src/lane_marker_detector.o ./src/udp_socket.o ./src/utility.o ./src/data_model.o
 	$(CXX) $(CXXFLAGS) $^ -o remote_control $(LIBS)
 
 %.o: ./src/%.cpp ./src/%.h

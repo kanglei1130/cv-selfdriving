@@ -22,6 +22,13 @@ using namespace std;
 
 namespace utility {
 
+static std::string FrameDataFromCar = "frame_data_from_car";
+static std::string FrameDataFromServer = "frame_data_from_server";
+
+static std::string ControlMessageFromController = "control_message_from_controller";
+static std::string ControlMessageFromServer = "control_message_from_server";
+
+
 void convertFileToVideo(string file);
 /**
  * @param src the input MAT image, with color

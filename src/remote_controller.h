@@ -1,26 +1,24 @@
-#ifndef DATA_POOL_H_
-#define DATA_POOL_H_
+#ifndef REMOTE_CONTROLLER_H_
+#define REMOTE_CONTROLLER_H_
 
 
 #include "headers.h"
 #include "udp_socket.h"
+#include "utility.h"
+#include "data_model.h"
 
-const int kLocalPort = 55555;
-//this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
-const string kLocalIPFromController = "192.168.42.60";
 //this IP address changes when you change your lan cable.
-const string kLocalIPFromCar = "192.168.10.102";
+const string kLocalIPForCar = "192.168.10.102";
+const int kLocalPortForCar = 55555;
 
 
-//Car's IP address via the WIFI
-const int kRemotePort = 5555;
-const string kRemoteIP = "192.168.8.8";
+//this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
+const string kLocalIPForController = "192.168.42.60";
+const int kLocalPortForController = 5000;
 
-//this is controller's IP address. When turning tethering on, this IP is always the same connected with the PC' same USB port.
-const int kRemotePortControllor = 1213;
-const string kRemoteIPControllor = "192.168.8.5";
 
-class DataPool {
+
+class RemoteController {
 private:
   //meta information, always there
   //mac address of node, and the node type
@@ -32,8 +30,14 @@ public:
 
 	UdpSocket* udpsocketController_;
 	UdpSocket* udpsocketCar_;
-	//UdpSocket* udpsocketToShowVideo_;
 
+	//Car's IP address via the WIFI
+
+	string remoteIPCar = "";
+	int remotePortCar = 5555;
+
+	// string kRemoteIPController = "192.168.8.5";
+	// int kRemotePortController = 1213;
 
 	bool use_gst_ = true;
     // frame data for gstreamer
@@ -51,14 +55,14 @@ public:
 	char** argv;
 
 
-	DataPool(int argc, char** argv) {
+	RemoteController(int argc, char** argv) {
 		//start two socket with different IP
 
 		udpsocketController_ = new UdpSocket(kPacketSize);
-		udpsocketController_->UdpSocketSetUp(kLocalIPFromCar, kLocalPort+1);
+		udpsocketController_->UdpSocketSetUp(kLocalIPForCar, kLocalPortForCar+1);
 
 		udpsocketCar_ = new UdpSocket(kPacketSize);
-		udpsocketCar_->UdpSocketSetUp(kLocalIPFromCar, kLocalPort);
+		udpsocketCar_->UdpSocketSetUp(kLocalIPForCar, kLocalPortForCar);
 
 		running = true;
 		cout<<"DataPool is runing"<<endl;
@@ -71,9 +75,15 @@ public:
 		this->argv = argv;
 	}
 
-	~DataPool() {
+	~RemoteController() {
 
 	}
+
+
+	static void* UDPReceiverForCar(void* dataPool);
+	static void* ControlPanel(void* dataPool);
+	static void* GstreamerReceiver(void* dataPool);
+
 };
 
 #endif

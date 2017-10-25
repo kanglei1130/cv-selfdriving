@@ -1,5 +1,6 @@
 #include "udp_socket.h"
-#include "data_pool.h"
+
+#include "remote_controller.h"
 
 
 UdpSocket::UdpSocket(int32_t pkt_sz/* = kPacketSize*/)

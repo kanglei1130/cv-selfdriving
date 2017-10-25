@@ -9,9 +9,8 @@
 
 #include "headers.h"
 #include "lane_marker_detector.h"
-#include "data_pool.h"
+#include "remote_controller.h"
 #include "udp_socket.h"
-#include "car_control.h"
 #include "utility.h"
 
 string imagepath = "/home/wei/Pictures/1.jpg/";
@@ -90,14 +89,14 @@ void startThreads(int argc, char** argv) {
 	 *reconnect the tethering mode on the phone(turn off then turn on)
 	*/
 
-	DataPool* dataPool = new DataPool(argc, argv);
+	RemoteController* dataPool = new RemoteController(argc, argv);
 
 	int num = 3;
 	pthread_t threads[num];
 
-	pthread_create (&(threads[0]), NULL, &CarControl::UDPReceiver, dataPool);
-	pthread_create (&(threads[1]), NULL, &CarControl::ControlPanel, dataPool);
-	pthread_create (&(threads[2]), NULL, &CarControl::GstreamerReceiver, dataPool);
+	pthread_create (&(threads[0]), NULL, &RemoteController::UDPReceiverForCar, dataPool);
+	pthread_create (&(threads[1]), NULL, &RemoteController::ControlPanel, dataPool);
+	pthread_create (&(threads[2]), NULL, &RemoteController::GstreamerReceiver, dataPool);
 
 	for(int i = 0; i < num; ++i) {
 		pthread_join(threads[i], NULL);

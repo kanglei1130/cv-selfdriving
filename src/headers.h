@@ -49,6 +49,10 @@
 #include <chrono>
 #include <thread>
 
+
+/////////////////////////////
+#include <gst/gst.h>
+
 using namespace std;
 using namespace std::chrono;
 
