@@ -8,7 +8,7 @@
 #include "data_model.h"
 
 //this IP address changes when you change your lan cable.
-const string kLocalIPForCar = "192.168.10.102";
+const string kLocalIPForCar = "127.0.0.1";
 const int kLocalPortForCar = 55555;
 
 
@@ -39,7 +39,10 @@ public:
 	// string kRemoteIPController = "192.168.8.5";
 	// int kRemotePortController = 1213;
 
-	bool use_gst_ = true;
+	bool use_gst_ {false};
+	bool display_video_ {false};
+        bool store_video_ {false};
+
     // frame data for gstreamer
     int gst_width_ = 640;
     int gst_height_ = 480;
@@ -47,7 +50,6 @@ public:
     int gst_port_ = 6666;
     string gst_h264_video_file_;
     string gst_h264_raw_data_;
-    bool display_video_ = true;
 
 	bool running;
 

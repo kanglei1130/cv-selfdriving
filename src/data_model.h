@@ -12,15 +12,15 @@
 #include "utility.h"
 
 struct FrameData {
-	uint64_t videoSendTime = 0;
-    uint32_t Sequence = 0;
-    bool isIFrame = false;
-    uint32_t originalDataSize = 0;
-    uint32_t compressedDataSize = 0;
-    uint64_t PCtime = 0;
+	uint64_t videoSendTime{0};
+    uint32_t Sequence{0};
+    bool isIFrame{false};
+    uint32_t originalDataSize{0};
+    uint32_t compressedDataSize{0};
+    uint64_t PCtime{0};
 
-    double speed = 0.0;
-    double steering = 0.5;
+    double speed{0.0};
+    double steering{0.5};
 
     FrameData();
     ~FrameData();
@@ -29,9 +29,9 @@ struct FrameData {
 };
 
 struct ControlCommand {
-	uint64_t timeStamp = 0;
-	double steering = 0.5;
-	double throttle = 0.5;
+	uint64_t timeStamp{0};
+	double steering{0.5};
+	double throttle{0.5};
 
 	ControlCommand();
 	~ControlCommand();

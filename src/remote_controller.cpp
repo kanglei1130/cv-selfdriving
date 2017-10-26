@@ -64,9 +64,11 @@ void* RemoteController::UDPReceiverForCar(void* param){
 			if (dataPool->use_gst_) {
 				dataPool->udpsocketCar_->SendTo("127.0.0.1", dataPool->gst_port_, body);
 			}
-			string frame_separate = to_string(body.size()) + "\n";
-			ofs.write(frame_separate.c_str(), frame_separate.size());
-			ofs.write(body.c_str(), body.size());
+                        if (dataPool->store_video_) {
+			  string frame_separate = to_string(body.size()) + "\n";
+			  ofs.write(frame_separate.c_str(), frame_separate.size());
+			  ofs.write(body.c_str(), body.size());
+                        }
 		} else {
 			cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
 		}
