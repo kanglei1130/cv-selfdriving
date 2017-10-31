@@ -13,7 +13,7 @@ const int kLocalPortForCar = 55555;
 
 
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
-const string kLocalIPForController = "192.168.42.60";
+const string kLocalIPForController = "192.168.8.20";
 const int kLocalPortForController = 5000;
 
 
@@ -61,7 +61,7 @@ public:
 		//start two socket with different IP
 
 		udpsocketController_ = new UdpSocket(kPacketSize);
-		udpsocketController_->UdpSocketSetUp(kLocalIPForCar, kLocalPortForCar+1);
+		udpsocketController_->UdpSocketSetUp(kLocalIPForController, kLocalPortForController);
 
 		udpsocketCar_ = new UdpSocket(kPacketSize);
 		udpsocketCar_->UdpSocketSetUp(kLocalIPForCar, kLocalPortForCar);

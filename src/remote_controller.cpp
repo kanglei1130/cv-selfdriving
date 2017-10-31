@@ -81,29 +81,35 @@ void* RemoteController::UDPReceiverForCar(void* param){
 //this thread only process data from controller
 void* RemoteController::ControlPanel(void* param)
 {
-  cout<<"receive controllor Thread"<<endl;;
+  cout<<"receive controllor Thread"<<endl;
   RemoteController *dataPool = (RemoteController*)param;
 
   string kRemoteIPController;
   int32_t kRemotePortController;
   string data;
 
-  while(!dataPool->running) {
+  while(dataPool->running) {
     dataPool->udpsocketController_->ReceiveFrom(kRemoteIPController, kRemotePortController, data);
-    if (data.length() <= 0 || dataPool->remoteIPCar == "") {
-      continue;
-    }
-    Json::Value parsedFromString;
-    Json::Reader reader;
-    assert(reader.parse(data, parsedFromString));
+	//cout<<data<<endl;
 
-    if (parsedFromString["type"].asString() == utility::ControlMessageFromController) {
-      ControlCommand controlCommand;
-      controlCommand.fromJson(data);
-      dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, controlCommand.toJson());
-    } else {
-      cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
+ //   if (data.length() <= 0 || dataPool->remoteIPCar == "") {
+ //     continue;
+ //   }
+    if (data.find(utility::ControlMessageFromController) && !data.empty()){
+        cout<<"parse Json data"<<endl;
+        Json::Value parsedFromString;
+        Json::Reader reader;
+        assert(reader.parse(data, parsedFromString));
+        if (parsedFromString["type"].asString() == utility::ControlMessageFromController) {
+          ControlCommand controlCommand;
+          controlCommand.fromJson(data);
+          dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, controlCommand.toJson());
+          cout<<controlCommand.toJson()<<endl;
+        } else {
+          cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
+        }
     }
+
 
   }
   cout<<"ControlPanel exit"<<endl;
