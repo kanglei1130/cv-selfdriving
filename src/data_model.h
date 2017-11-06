@@ -12,12 +12,12 @@
 #include "utility.h"
 
 struct FrameData {
-	uint64_t videoSendTime{0};
-    uint32_t Sequence{0};
+	uint64_t frameSendTime{0};
+    uint32_t transmitSequence{0};
     bool isIFrame{false};
     uint32_t originalDataSize{0};
     uint32_t compressedDataSize{0};
-    uint64_t PCtime{0};
+    uint64_t serverTime{0};
 
     double speed{0.0};
     double steering{0.5};

@@ -16,9 +16,9 @@ FrameData::~FrameData() {
 
 string FrameData::toJson() {
   Json::Value jsonData;
-  jsonData["videoSendTime"] = (Json::Value::UInt64)this->videoSendTime;
-  jsonData["PCtime"] = (Json::Value::UInt64)currentTimeMillis();
-  jsonData["Sequence"] = Json::Value(this->Sequence);
+  jsonData["frameSendTime"] = (Json::Value::UInt64)this->frameSendTime;
+  jsonData["serverTime"] = (Json::Value::UInt64)currentTimeMillis();
+  jsonData["transmitSequence"] = Json::Value(this->transmitSequence);
   jsonData["isIFrame"] = Json::Value(this->isIFrame);
   jsonData["originalDataSize"] = Json::Value(this->originalDataSize);
   jsonData["compressedDataSize"] = Json::Value(this->compressedDataSize);
@@ -36,8 +36,8 @@ void FrameData::fromJson(const std::string& json) {
   assert(reader.parse(json, parsedFromString));
 
   //parse json data and read more data
-  this->videoSendTime = parsedFromString["videoSendTime"].asUInt64();
-  this->Sequence = parsedFromString["Sequence"].asUInt();
+  this->frameSendTime = parsedFromString["frameSendTime"].asUInt64();
+  this->transmitSequence = parsedFromString["transmitSequence"].asUInt();
   this->isIFrame = parsedFromString["isIFrame"].asBool();
   this->originalDataSize = parsedFromString["originalDataSize"].asUInt();
   //long videoLength  = parsedFromString["frameData"].toStyledString().length()-2;
