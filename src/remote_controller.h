@@ -8,12 +8,12 @@
 #include "data_model.h"
 
 //this IP address changes when you change your lan cable.
-const string kLocalIPForCar = "127.0.0.1";
+const string kLocalIPForCar = "192.168.11.2";
 const int kLocalPortForCar = 55555;
 
 
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
-const string kLocalIPForController = "192.168.8.20";
+const string kLocalIPForController = "192.168.42.118";
 const int kLocalPortForController = 5000;
 
 
@@ -33,15 +33,15 @@ public:
 
 	//Car's IP address via the WIFI
 
-	string remoteIPCar = "";
+	string remoteIPCar = "192.168.11.";
 	int remotePortCar = 5555;
 
 	// string kRemoteIPController = "192.168.8.5";
 	// int kRemotePortController = 1213;
 
-	bool use_gst_ {false};
-	bool display_video_ {false};
-        bool store_video_ {false};
+	bool use_gst_ {true};
+	bool display_video_ {true};
+        bool store_video_ {true};
 
     // frame data for gstreamer
     int gst_width_ = 640;

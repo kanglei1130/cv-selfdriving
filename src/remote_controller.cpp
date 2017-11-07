@@ -41,6 +41,7 @@ void* RemoteController::UDPReceiverForCar(void* param){
 
   while(dataPool->running) {
     dataPool->udpsocketCar_->ReceiveFrom(dataPool->remoteIPCar, dataPool->remotePortCar, data);
+    //cout<<"data is: " + data<<endl;
     if (data.length() <= 0) {
       continue;
     }
@@ -96,7 +97,7 @@ void* RemoteController::ControlPanel(void* param)
  //     continue;
  //   }
     if (data.find(utility::ControlMessageFromController) && !data.empty()){
-        cout<<"parse Json data"<<endl;
+        //cout<<"parse Json data"<<endl;
         Json::Value parsedFromString;
         Json::Reader reader;
         assert(reader.parse(data, parsedFromString));
@@ -104,7 +105,7 @@ void* RemoteController::ControlPanel(void* param)
           ControlCommand controlCommand;
           controlCommand.fromJson(data);
           dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, controlCommand.toJson());
-          cout<<controlCommand.toJson()<<endl;
+          //cout<<controlCommand.toJson()<<endl;
         } else {
           cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
         }
