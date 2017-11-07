@@ -12,20 +12,20 @@
 #include "utility.h"
 
 struct FrameData {
-	uint64_t frameSendTime{0};
-    uint32_t transmitSequence{0};
-    bool isIFrame{false};
-    uint32_t originalDataSize{0};
-    uint32_t compressedDataSize{0};
-    uint64_t serverTime{0};
+  uint64_t frameSendTime{0};
+  uint32_t transmitSequence{0};
+  bool isIFrame{false};
+  uint32_t originalDataSize{0};
+  uint32_t compressedDataSize{0};
+  uint64_t serverTime{0};
+  uint32_t rawFrameIndex{0};
+  double speed{0.0};
+  double steering{0.5};
 
-    double speed{0.0};
-    double steering{0.5};
-
-    FrameData();
-    ~FrameData();
-    string toJson();
-    void fromJson(const std::string& json);
+  FrameData();
+  ~FrameData();
+  string toJson();
+  void fromJson(const std::string& json);
 };
 
 struct ControlCommand {

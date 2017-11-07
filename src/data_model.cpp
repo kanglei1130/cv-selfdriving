@@ -23,6 +23,7 @@ string FrameData::toJson() {
   jsonData["originalDataSize"] = Json::Value(this->originalDataSize);
   jsonData["compressedDataSize"] = Json::Value(this->compressedDataSize);
   jsonData["type"] = Json::Value(utility::FrameDataFromServer);
+  jsonData["rawFrameIndex"] = Json::Value(this->rawFrameIndex);
   // cout<<jsonData.toStyledString()<<endl;
   // write JSON object to a string
   Json::FastWriter fastWriter;
@@ -40,9 +41,8 @@ void FrameData::fromJson(const std::string& json) {
   this->transmitSequence = parsedFromString["transmitSequence"].asUInt();
   this->isIFrame = parsedFromString["isIFrame"].asBool();
   this->originalDataSize = parsedFromString["originalDataSize"].asUInt();
-  //long videoLength  = parsedFromString["frameData"].toStyledString().length()-2;
   this->compressedDataSize = parsedFromString["compressedDataSize"].asUInt();
-
+  this->rawFrameIndex = parsedFromString["rawFrameIndex"].asUInt();
 
   this->steering = parsedFromString["steering"].asDouble();
   this->speed = parsedFromString["speed"].asDouble();
