@@ -29,8 +29,8 @@ struct FrameData {
 };
 
 struct ControlCommand {
-	uint64_t timeStamp{0};
-	double steering{0.5};
+  uint64_t timeStamp{0};
+  double steering{0.5};
 	double throttle{0.5};
 
 	ControlCommand();
