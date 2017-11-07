@@ -72,20 +72,6 @@ int main( int argc, char** argv )
 }
 
 
-/*
-void sendBackTime(){
-  DataPool* dataPool = new DataPool();
-  int num = 1;
-  pthread_t threads[num];
-
-  pthread_create (&(threads[0]), NULL, &CarControl::sendTimeBack, dataPool);
-  cout << currentTimeMillis() << endl;
-
-  delete dataPool;
-}
-*/
-
-
 void startThreads(int argc, char** argv) {
   /*if there is an error about bind address or address already used
    *reconnect the tethering mode on the phone(turn off then turn on)
@@ -93,12 +79,13 @@ void startThreads(int argc, char** argv) {
 
   RemoteController* dataPool = new RemoteController(argc, argv);
 
-  int num = 3;
+  int num = 4;
   pthread_t threads[num];
 
-  pthread_create (&(threads[0]), NULL, &RemoteController::UDPReceiverForCar, dataPool);
-  pthread_create (&(threads[1]), NULL, &RemoteController::ControlPanel, dataPool);
-  pthread_create (&(threads[2]), NULL, &RemoteController::GstreamerReceiver, dataPool);
+  pthread_create (&(threads[0]), NULL, &RemoteController::GstreamerReceiver, dataPool);
+  pthread_create (&(threads[1]), NULL, &RemoteController::UDPReceiverForCar, dataPool);
+  pthread_create (&(threads[2]), NULL, &RemoteController::ControlPanel, dataPool);
+  pthread_create (&(threads[3]), NULL, &RemoteController::VideoFrameProcesser, dataPool);
 
   for(int i = 0; i < num; ++i) {
     pthread_join(threads[i], NULL);

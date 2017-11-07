@@ -22,7 +22,7 @@ string FrameData::toJson() {
   jsonData["isIFrame"] = Json::Value(this->isIFrame);
   jsonData["originalDataSize"] = Json::Value(this->originalDataSize);
   jsonData["compressedDataSize"] = Json::Value(this->compressedDataSize);
-  jsonData["type"] = utility::FrameDataFromServer;
+  jsonData["type"] = Json::Value(utility::FrameDataFromServer);
   // cout<<jsonData.toStyledString()<<endl;
   // write JSON object to a string
   Json::FastWriter fastWriter;
