@@ -21,9 +21,9 @@ class RemoteController {
 private:
   //meta information, always there
   //mac address of node, and the node type
-  bool use_gst_ {false};
-  bool display_video_ {false};
-  bool store_video_ {false};
+  bool use_gst_ {true};
+  bool display_video_ {true};
+  bool store_video_ {true};
 
   // frame data for gstreamer
   int gst_width_ = 640;
