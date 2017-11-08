@@ -28,8 +28,14 @@ static std::string FrameDataFromServer = "frame_data_from_server";
 static std::string ControlMessageFromController = "control_message_from_controller";
 static std::string ControlMessageFromServer = "control_message_from_server";
 
+static std::random_device rd; 
+static std::mt19937 randomNumberGenerator(rd());  
+static std::uniform_int_distribution<uint32_t> uint_dist100(1,100);
 
-void convertFileToVideo(string file);
+int getRandomNumber();
+
+
+void convertFileToVideo(string file, int loss_percent = 0);
 /**
  * @param src the input MAT image, with color
  * @return the blur value, use a threshold to detect blurness

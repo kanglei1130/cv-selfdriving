@@ -53,19 +53,18 @@ int main( int argc, char** argv )
 
   //utility::adjustTest(src);
 
-  startThreads(argc, argv);
+  // startThreads(argc, argv);
 
 
   //sendBackTime();
 
   //cout << currentTimeMillis() << endl;
 
-  //string rawvideo = string("/home/wei/Dropbox/selfdriving/figures/streaming/measure_bitrate/rawvideodat/interval1/") + string("1.5mbps_test2.raw");
-  //utility::convertFileToVideo(rawvideo);
 
+
+  // string rawvideo = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
+  // utility::convertFileToVideo(rawvideo, 20);
   // processVideo();
-
-
 
   return 0;
 
