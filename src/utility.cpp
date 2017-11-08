@@ -32,7 +32,7 @@ void convertFileToVideo(string raw, int loss_percent) {
       int numPackets = sz / packetSize + sz % packetSize == 0 ? 0 : 1;
       for (int i = 0; i < numPackets; ++i) {
         int curLen = std::min(sz - packetSize * i, packetSize);
-        if (getRandomNumber() < loss_percent) {
+        if (getRandomNumber() <= loss_percent) {
           // lost
           memset(packet, 1, curLen);
         } else {
