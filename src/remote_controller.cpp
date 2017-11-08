@@ -95,6 +95,7 @@ void* RemoteController::UDPReceiverForCar(void* param){
       dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frameData.toJson());
       long timeDiff = currentTimeMillis() - frameData.frameSendTime;
 
+
       dataPool->mtx.lock();      
       dataPool->trackLatencyDifference(timeDiff);
       dataPool->videoFrames.push_back(make_pair(frameData, body));
@@ -182,7 +183,7 @@ void* RemoteController::GstreamerReceiver(void* param) {
     } else {
       input = udpsrc + " ! " + video + " ! " + "avdec_h264" + " ! " + "avimux" + " ! " + file;
     }
-
+  cout<<"gstreamer configuration:"<<input<<endl;
   pipeline = gst_parse_launch (input.c_str(), NULL);
 
 
