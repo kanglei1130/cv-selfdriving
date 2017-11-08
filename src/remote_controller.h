@@ -50,7 +50,7 @@ private:
   string remoteIPCar = "";
   int remotePortCar = 5555;
   // track the latency difference
-  bool consistency {true};
+  bool consistentView {false};
   int frameCount {0};
   double latencyDifference {0.0};
   double latencyDeviation {0.0};

@@ -23,7 +23,7 @@ void RemoteController::trackLatencyDifference(long timeDiff) {
 void RemoteController::displayAndStoreVideo(FrameData& header, string& body) {
  
   long timeDiff = currentTimeMillis() - header.frameSendTime;
-  if (this->consistency) {
+  if (this->consistentView) {
     long diff = timeDiff - this->latencyDifference;
     if (diff < 0) {
       this_thread::sleep_for(chrono::milliseconds(abs(diff)));
