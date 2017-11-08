@@ -12,39 +12,39 @@ namespace utility {
 void convertFileToVideo(string raw, int loss_percent) {
   std::ifstream ifs (raw.c_str(), std::ifstream::in);
 
-  string len = "";
-  char c;
   UdpSocket* udpsocket = new UdpSocket(kPacketSize);
   udpsocket->UdpSocketSetUp("127.0.0.1", 4444);
-  int packetSize = 1500;
+  long packetSize = 1500;
   char* buffer = new char [65535];
-  char* packet = new char [packetSize];
+  char* assemble = new char [65535];
   // the end char is 255
+  int sum = 0;
   while (ifs.good() && ifs.peek() != char(255)) {
+    char c = ifs.get();
+    string len = "";
+    while (c != '\n') {
+      len += c;
       c = ifs.get();
-      while (c != '\n') {
-        len += c;
-        c = ifs.get();
+    }
+    long sz = std::stol(len);
+    ifs.read(buffer, sz);
+    int numPackets = (sz / packetSize) + (sz % packetSize == 0 ? 0 : 1);
+    int lostSize = 0;
+    for (int i = 0, newIndex = 0; i < numPackets; ++i) {
+      int curLen = std::min(sz - packetSize * i, packetSize);
+      if (getRandomNumber() <= loss_percent) {
+        lostSize += curLen;
+      } else {
+        memcpy(assemble + newIndex * packetSize, buffer + i * packetSize, curLen);
+        newIndex++;
       }
-      int sz = std::stol(len);
-      len = "";
-      ifs.read(buffer, sz);
-      int numPackets = sz / packetSize + sz % packetSize == 0 ? 0 : 1;
-      for (int i = 0; i < numPackets; ++i) {
-        int curLen = std::min(sz - packetSize * i, packetSize);
-        if (getRandomNumber() <= loss_percent) {
-          // lost
-          memset(packet, 1, curLen);
-        } else {
-          memcpy(packet, buffer + i * packetSize, curLen);
-        }
-        udpsocket->SendByteTo("127.0.0.1", 6666, buffer, sz);
-      }    
-      usleep(10*1000);
+    }  
+    udpsocket->SendByteTo("127.0.0.1", 6666, assemble, sz - lostSize);      
+    usleep(10*1000);
   }
   ifs.close();
   delete buffer;
-  delete packet;
+  delete assemble;
 }
 
 int getRandomNumber() {

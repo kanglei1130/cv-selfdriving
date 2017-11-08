@@ -61,9 +61,8 @@ int main( int argc, char** argv )
   //cout << currentTimeMillis() << endl;
 
 
-
   // string rawvideo = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
-  // utility::convertFileToVideo(rawvideo, 20);
+  // utility::convertFileToVideo(rawvideo, 1);
   // processVideo();
 
   return 0;
