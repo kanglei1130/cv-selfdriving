@@ -60,7 +60,7 @@ int main( int argc, char** argv )
 
   //cout << currentTimeMillis() << endl;
 
-  //string rawvideo = string("/home/wei/Dropbox/selfdriving/figures/streaming/wifi/rawvideodat/") + string("0.5mbps_interval1_640.raw");
+  //string rawvideo = string("/home/wei/Dropbox/selfdriving/figures/streaming/measure_bitrate/rawvideodat/interval1/") + string("1.5mbps_test2.raw");
   //utility::convertFileToVideo(rawvideo);
 
   // processVideo();
