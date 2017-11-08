@@ -8,7 +8,7 @@
 
 namespace utility {
 
-
+// It requires another thread or terminal to start gstreamer
 void convertFileToVideo(string raw) {
   std::ifstream ifs (raw.c_str(), std::ifstream::in);
 
