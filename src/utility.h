@@ -35,6 +35,8 @@ static std::uniform_int_distribution<uint32_t> uint_dist100(1,100);
 int getRandomNumber();
 
 
+double getPSNR(const Mat& I1, const Mat& I2);
+
 void convertFileToVideo(string file, int loss_percent = 0);
 /**
  * @param src the input MAT image, with color

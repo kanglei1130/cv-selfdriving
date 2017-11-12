@@ -22,13 +22,11 @@ void test(Mat src, Mat& gray);
 
 
 void processVideo();
-void blurDetection(Mat& frame);
 
 int changePixelColor();
 
 void startThreads(int argc, char** argv);
-void sendBackTime();
-
+void videoQuality(string rawVideo, string lossVideo);
 
 int main( int argc, char** argv )
 {
@@ -46,8 +44,6 @@ int main( int argc, char** argv )
 
   //string in = string("/home/wei/Pictures/1.jpg/");
   //Mat src = imread(in, IMREAD_COLOR);
-  //double clearness = utility::blurDetection(src);
-  //cout<<clearness<<endl;
 
 
 
@@ -55,15 +51,22 @@ int main( int argc, char** argv )
 
   // startThreads(argc, argv);
 
-
-  //sendBackTime();
-
   //cout << currentTimeMillis() << endl;
 
 
-  // string rawvideo = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
-  // utility::convertFileToVideo(rawvideo, 1);
+// 1 --- 34
+// 2 --- 20.4
+// 5 --- 18.7139
+/*
+  string rawvideo = string("/home/lkang/Desktop/") + string("video.h264");
+  string lossvideo = string("/home/lkang/Desktop/") + string("loss.h264");
+  videoQuality(rawvideo, lossvideo);
+*/
+/*
+  string path = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
+  utility::convertFileToVideo(path, 2);
   // processVideo();
+*/
 
   return 0;
 
@@ -93,6 +96,33 @@ void startThreads(int argc, char** argv) {
 }
 
 
+void videoQuality(string rawVideo, string lossVideo) {
+  VideoCapture raw(rawVideo.c_str());
+  VideoCapture loss(lossVideo.c_str());
+
+  if(!raw.isOpened() || !loss.isOpened()) { // check if we succeeded
+    cout<<"not able to open"<<endl;
+    return;
+  }
+  int counter = 0;
+  double sum = 0.0;
+  for(;;) {
+    Mat raw_frame;
+    Mat loss_frame;
+    raw >> raw_frame; // get a new frame from camera
+    loss >> loss_frame; // get a new frame from camera
+    if(raw_frame.empty() || loss_frame.empty()) {
+      break;
+    }
+
+    double snr = utility::getPSNR(raw_frame, loss_frame);
+    if (snr == 0.0) snr = 40;
+    // cout<<snr<<endl;
+    counter ++;
+    sum += snr;
+  }
+  cout<<sum / counter<<endl;
+}
 
 
 
