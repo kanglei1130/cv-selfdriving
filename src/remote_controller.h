@@ -26,12 +26,12 @@ private:
   bool store_video_ {true};
 
   // frame data for gstreamer
-  int gst_width_ = 640;
-  int gst_height_ = 480;
+  int gst_width_ {640};
+  int gst_height_ {480};
 
 
-  int gst_frame_rate_ = 10;
-  int gst_port_ = 6666;
+  int gst_frame_rate_ {10};
+  const int gst_port_ {6666};
   string gst_h264_video_file_;
   string gst_h264_raw_data_;
   ofstream ofs_;
@@ -48,7 +48,7 @@ private:
   UdpSocket* udpsocketCar_;
   // Car's IP address via the WIFI
   string remoteIPCar = "";
-  int remotePortCar = 5555;
+  int remotePortCar {5555};
   // track the latency difference
   bool consistentView {false};
   int frameCount {0};

@@ -80,3 +80,46 @@ void ControlCommand::fromJson(const string& json) {
 
 }
 
+
+FramePacket::FramePacket() {
+
+}
+
+FramePacket::~FramePacket() {
+
+}
+
+string FramePacket::toJson() {
+  uint32_t frameSequence{0}; // uniquely identify a frame
+  short k;
+  short n;
+  uint64_t packetIndex{0}; // 0 ... n - 1
+
+
+  Json::Value jsonData;
+  jsonData["packetSendTime"] = (Json::Value::UInt64)this->packetSendTime;
+  jsonData["frameSequence"] = Json::Value(this->frameSequence);
+  jsonData["index"] = (Json::Value)this->index;
+  jsonData["k"] = Json::Value(this->k);
+  jsonData["n"] = Json::Value(this->n);
+
+  Json::FastWriter fastWriter;
+  std::string output = fastWriter.write(jsonData);
+  return output;
+
+}
+
+void FramePacket::fromJson(const string& json) {
+  Json::Value parsedFromString;
+  Json::Reader reader;
+  assert(reader.parse(json, parsedFromString));
+   //parse json data and read more data
+  this->packetSendTime = parsedFromString["packetSendTime"].asUInt64();
+  this->frameSequence = parsedFromString["frameSequence"].asUInt();
+  this->index = parsedFromString["packetIndex"].asUInt();
+  this->k = parsedFromString["k"].asInt();
+  this->n = parsedFromString["n"].asInt();
+}
+
+
+

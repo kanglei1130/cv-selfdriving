@@ -11,6 +11,20 @@
 
 #include "utility.h"
 
+struct FramePacket {
+  uint64_t packetSendTime{0};
+  uint32_t frameSequence{0}; // uniquely identify a frame
+  short k{0};
+  short n{0};
+  short index{0}; // 0 ... n - 1
+
+
+  FramePacket();
+  ~FramePacket();
+  string toJson();
+  void fromJson(const std::string& json);
+};
+
 struct FrameData {
   uint64_t frameSendTime{0};
   uint32_t transmitSequence{0};
