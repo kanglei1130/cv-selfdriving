@@ -12,6 +12,7 @@
 #include "remote_controller.h"
 #include "udp_socket.h"
 #include "utility.h"
+#include "packet_aggregator.h"
 
 string imagepath = "/home/wei/Pictures/1.jpg/";
 
@@ -68,12 +69,13 @@ int main( int argc, char** argv )
   // processVideo();
 */
 
-  set<int> test;
-  test.insert(1);
-  test.insert(2);
-  test.insert(0);
+  PacketAggregator packetAggregator;
+  int frameLen = 10000;
+  FrameData frameData;
+  frameData.compressedDataSize = frameLen;
 
-  cout<<test.count(3)<<" "<<test.count(0)<<endl;
+  string payload(frameLen, 'a');
+  packetAggregator.deaggregatePackets(frameData, payload);
   return 0;
 
 }

@@ -32,12 +32,15 @@ private:
   pair<int, int> sequenceCounter;
   set<PacketAndData, classComp> videoPackets;
 public:
+  deque<pair<FrameData, string>> videoFrames;
+
   PacketAggregator();
   ~PacketAggregator();
-  FrameAndData generateFrame(FramePacket header, unsigned char **data);
+  string generateFrame(FramePacket header, unsigned char **data);
   void insertPacket(FramePacket header, string& data);
-  void aggregatePackets(set<PacketAndData>& videoPackets, const int sequence);
+  void aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence);
 
+  void deaggregatePackets(FrameData& frameData, string& payload);
 };
 
 
