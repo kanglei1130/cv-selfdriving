@@ -102,6 +102,7 @@ string FramePacket::toJson() {
   jsonData["index"] = (Json::Value)this->index;
   jsonData["k"] = Json::Value(this->k);
   jsonData["n"] = Json::Value(this->n);
+  jsonData["packetLength"] = Json::Value(this->packetLength);
 
   Json::FastWriter fastWriter;
   std::string output = fastWriter.write(jsonData);
@@ -119,6 +120,7 @@ void FramePacket::fromJson(const string& json) {
   this->index = parsedFromString["packetIndex"].asUInt();
   this->k = parsedFromString["k"].asInt();
   this->n = parsedFromString["n"].asInt();
+  this->packetLength = parsedFromString["packetLength"].asInt();
 }
 
 

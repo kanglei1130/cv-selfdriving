@@ -68,6 +68,12 @@ int main( int argc, char** argv )
   // processVideo();
 */
 
+  set<int> test;
+  test.insert(1);
+  test.insert(2);
+  test.insert(0);
+
+  cout<<test.count(3)<<" "<<test.count(0)<<endl;
   return 0;
 
 }
