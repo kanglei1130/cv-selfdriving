@@ -23,7 +23,7 @@ using PacketAndData = pair<FramePacket, string>;
 using FrameAndData = pair<FrameData, string>;
 struct classComp {
   bool operator() (const PacketAndData& a, const PacketAndData& b) const
-  { return a.first.index > b.first.index; }
+  { return a.first.index < b.first.index; }
 };
 
 
@@ -40,7 +40,7 @@ public:
   void insertPacket(FramePacket header, string& data);
   void aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence);
 
-  void deaggregatePackets(FrameData& frameData, string& payload);
+  vector<PacketAndData> deaggregatePackets(FrameData& frameData, string& payload, double loss);
 };
 
 

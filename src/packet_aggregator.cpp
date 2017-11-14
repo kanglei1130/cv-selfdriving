@@ -9,6 +9,8 @@
 
 PacketAggregator::PacketAggregator() {
   FEClib::fec_init();
+  sequenceCounter.first = -1;
+  sequenceCounter.second = 0;
 }
 
 PacketAggregator::~PacketAggregator() {
@@ -22,12 +24,14 @@ string PacketAggregator::generateFrame(FramePacket header, unsigned char **data)
   for (int i = 0; i < k; ++i) {
     payload += string(reinterpret_cast<char*>(data[i]), len);
   }
+  cout<<"generated frame:"<<endl<<payload<<endl;
   return payload;
 }
 
 
 void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence) {
   int sz = videoPackets.size();
+  cout<<"aggregatePackets "<<sz<<endl;
   assert(sz > 0);
   FramePacket samplePkt = (*videoPackets.begin()).first;
   FrameData frameData;
@@ -81,17 +85,19 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
   for (int i = 0; i < fecCnt; ++i) {
     fec_blocks[i] = new unsigned char[len];
   }
-
   int j = 0;
+  // program ends here
   for (PacketAndData curPkt: videoPackets) {
     FramePacket packet = curPkt.first;
     int index = packet.index;
+    cout<<index<<" "<<dataCnt<<" "<<k<<endl;
     if (index < k) {
       memcpy((void*)data_blocks[index], (void*)curPkt.second.c_str(), len);
       dataIndexes.insert(index);
     } else {
-      fec_block_nos[j++] = index;
+      fec_block_nos[j] = index;
       memcpy((void*)fec_blocks[j], (void*)curPkt.second.c_str(), len);
+      ++ j;
     }
   }
 
@@ -100,6 +106,7 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
       erased_blocks[j++] = i;
     }
   }
+  cout<<"start decoding"<<endl;
   FEClib::fec_decode(len, data_blocks, dataCnt, fec_blocks, fec_block_nos, erased_blocks, fecCnt);
 
   string payload = generateFrame(samplePkt, data_blocks);
@@ -119,10 +126,12 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
 void PacketAggregator::insertPacket(FramePacket header, string& data) {
   int sequence = header.frameSequence;
   int k = header.k;
+  // cout<<header.toJson()<<" "<<sequenceCounter.first<<" "<<sequenceCounter.second<<endl;
   if (sequenceCounter.first > sequence) {
     return;
   }
   if (sequenceCounter.first == sequence) {
+    this->videoPackets.insert(make_pair(header, data));
     sequenceCounter.second ++;
     if (sequenceCounter.second == k) {
       // aggregate current one
@@ -143,40 +152,52 @@ void PacketAggregator::insertPacket(FramePacket header, string& data) {
   }
 }
 
-void PacketAggregator::deaggregatePackets(FrameData& frameData, string& payload) {
+vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData, string& payload, double loss) {
   int sz = frameData.compressedDataSize;
   uint64_t sendTime = frameData.frameSendTime;
-  const int referencePktSize = 2000;
+  const int referencePktSize = 200;
   // minimize padding
   int k = sz/referencePktSize + 1;
   int blockSize = sz / k + 1;
-  payload += string(k * blockSize - sz, 'p');
+  payload += string(k * blockSize - sz, '0');
 
+  int n = round(k * double(1.0 + loss * 5.0));
+  vector<PacketAndData> res;
 
-  int n = k + 2;
-
-  if (payload.size() / 1500 < 3) {
-
-  } else {
-
+  for (int i = 0; i < k; ++i) {
+    FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, i);
+    string data = payload.substr(i * blockSize, blockSize);
+    res.push_back(make_pair(framePacket, data));
   }
+  if (k == n) {
+    return res;
+  }
+
   unsigned char *data_blocks[k];
   for (int i = 0; i < k; ++i) {
     data_blocks[i] = new unsigned char[blockSize];
+    memcpy(data_blocks[i], res[i].second.c_str(), blockSize);
   }
-  int fecCnt = 0;
+
+  int fecCnt = n - k;
   unsigned char *fec_blocks[fecCnt];
   for (int i = 0; i < fecCnt; ++i) {
     fec_blocks[i] = new unsigned char[blockSize];
   }
   FEClib::fec_encode(blockSize, data_blocks, k, fec_blocks, n - k);
 
+  for (int i = 0; i < fecCnt; ++i) {
+    FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, k + i);
+    string data = string(reinterpret_cast<char*>(fec_blocks[i]), blockSize);
+    res.push_back(make_pair(framePacket, data));
+  }
   for (int i = 0; i < k; ++i) {
     delete [] data_blocks[i];
   }
   for (int i = 0; i < fecCnt; ++i) {
     delete [] fec_blocks[i];
   }
+  return res;
 }
 
 

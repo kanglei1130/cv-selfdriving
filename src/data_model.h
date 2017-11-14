@@ -21,6 +21,8 @@ struct FramePacket {
 
 
   FramePacket();
+  FramePacket(uint64_t sendTime, uint32_t frameSequence, short len, short k, short n, short index):
+    packetSendTime(sendTime), frameSequence(frameSequence), packetLength(len), k(k), n(n), index(index) {}
   ~FramePacket();
   string toJson();
   void fromJson(const std::string& json);
