@@ -24,14 +24,12 @@ string PacketAggregator::generateFrame(FramePacket header, unsigned char **data)
   for (int i = 0; i < k; ++i) {
     payload += string(reinterpret_cast<char*>(data[i]), len);
   }
-  cout<<"generated frame:"<<endl<<payload<<endl;
   return payload;
 }
 
 
 void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence) {
   int sz = videoPackets.size();
-  cout<<"aggregatePackets "<<sz<<endl;
   assert(sz > 0);
   FramePacket samplePkt = (*videoPackets.begin()).first;
   FrameData frameData;
@@ -78,7 +76,7 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
 
   set<int> dataIndexes;
 
-  unsigned int * fec_block_nos = new unsigned int[dataCnt];
+  unsigned int * fec_block_nos = new unsigned int[fecCnt];
   unsigned int * erased_blocks = new unsigned int[k - dataCnt];
 
   unsigned char *fec_blocks[fecCnt];
@@ -90,12 +88,11 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
   for (PacketAndData curPkt: videoPackets) {
     FramePacket packet = curPkt.first;
     int index = packet.index;
-    cout<<index<<" "<<dataCnt<<" "<<k<<endl;
     if (index < k) {
       memcpy((void*)data_blocks[index], (void*)curPkt.second.c_str(), len);
       dataIndexes.insert(index);
     } else {
-      fec_block_nos[j] = index;
+      fec_block_nos[j] = index - k;
       memcpy((void*)fec_blocks[j], (void*)curPkt.second.c_str(), len);
       ++ j;
     }
@@ -106,8 +103,7 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
       erased_blocks[j++] = i;
     }
   }
-  cout<<"start decoding"<<endl;
-  FEClib::fec_decode(len, data_blocks, dataCnt, fec_blocks, fec_block_nos, erased_blocks, fecCnt);
+  FEClib::fec_decode(len, data_blocks, k, fec_blocks, fec_block_nos, erased_blocks, fecCnt);
 
   string payload = generateFrame(samplePkt, data_blocks);
   this->videoFrames.push_back(make_pair(frameData, payload));
@@ -155,13 +151,15 @@ void PacketAggregator::insertPacket(FramePacket header, string& data) {
 vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData, string& payload, double loss) {
   int sz = frameData.compressedDataSize;
   uint64_t sendTime = frameData.frameSendTime;
-  const int referencePktSize = 200;
+  const int referencePktSize = 2000;
   // minimize padding
-  int k = sz/referencePktSize + 1;
-  int blockSize = sz / k + 1;
+  int k = sz / referencePktSize + (sz % referencePktSize == 0 ? 0 : 1);
+
+  int blockSize = sz / k + (sz % k == 0 ? 0 : 1);
   payload += string(k * blockSize - sz, '0');
 
   int n = round(k * double(1.0 + loss * 5.0));
+  n = k + 1;
   vector<PacketAndData> res;
 
   for (int i = 0; i < k; ++i) {
@@ -185,7 +183,6 @@ vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData,
     fec_blocks[i] = new unsigned char[blockSize];
   }
   FEClib::fec_encode(blockSize, data_blocks, k, fec_blocks, n - k);
-
   for (int i = 0; i < fecCnt; ++i) {
     FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, k + i);
     string data = string(reinterpret_cast<char*>(fec_blocks[i]), blockSize);

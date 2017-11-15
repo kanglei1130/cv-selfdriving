@@ -70,23 +70,24 @@ int main( int argc, char** argv )
 */
 
   PacketAggregator packetAggregator;
-  int frameLen = 1000;
-  string payload(frameLen, 'a');
+  int frameLen = 38000;
+  string payload(frameLen, 'x');
 
   FrameData frameData;
   frameData.compressedDataSize = frameLen;
   frameData.frameSendTime = 123;
   frameData.rawFrameIndex = 1;
-
   frameData.compressedDataSize = payload.size();
+
+
   vector<PacketAndData> packets = packetAggregator.deaggregatePackets(frameData, payload, 0.04);
+
   for (int i = 1; i < packets.size(); ++i) {
     PacketAndData cur = packets[i];
     packetAggregator.insertPacket(cur.first, cur.second);
   }
-  cout<<"get decoded packet:"<<endl;
   FrameAndData frameAndData = packetAggregator.videoFrames[0];
-  cout<<frameAndData.second.size()<<endl;
+  cout<<frameAndData.second.compare(payload)<<endl;
   return 0;
 
 }
