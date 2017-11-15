@@ -37,7 +37,8 @@ int getRandomNumber();
 
 double getPSNR(const Mat& I1, const Mat& I2);
 
-void convertFileToVideo(string file, int loss_percent = 0);
+void convertFileToVideo(string file, double loss_percent = 0.0);
+void convertFileToVideoFEC(string file, double loss_percent = 0.0);
 /**
  * @param src the input MAT image, with color
  * @return the blur value, use a threshold to detect blurness

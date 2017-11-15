@@ -29,6 +29,8 @@ int changePixelColor();
 void startThreads(int argc, char** argv);
 void videoQuality(string rawVideo, string lossVideo);
 
+void testPacketAggregator();
+
 int main( int argc, char** argv )
 {
 
@@ -63,12 +65,16 @@ int main( int argc, char** argv )
   string lossvideo = string("/home/lkang/Desktop/") + string("loss.h264");
   videoQuality(rawvideo, lossvideo);
 */
-/*
   string path = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
-  utility::convertFileToVideo(path, 2);
+  utility::convertFileToVideoFEC(path, 0.1);
   // processVideo();
-*/
 
+
+  return 0;
+
+}
+
+void testPacketAggregator() {
   PacketAggregator packetAggregator;
   int frameLen = 38000;
   string payload(frameLen, 'x');
@@ -82,16 +88,14 @@ int main( int argc, char** argv )
 
   vector<PacketAndData> packets = packetAggregator.deaggregatePackets(frameData, payload, 0.04);
 
-  for (int i = 1; i < packets.size(); ++i) {
+  for (int i = 0; i < packets.size(); ++i) {
     PacketAndData cur = packets[i];
     packetAggregator.insertPacket(cur.first, cur.second);
   }
-  FrameAndData frameAndData = packetAggregator.videoFrames[0];
-  cout<<frameAndData.second.compare(payload)<<endl;
-  return 0;
-
+  for (int i = 0; i < packetAggregator.videoFrames.size(); ++i) {
+    FrameAndData frameAndData = packetAggregator.videoFrames[i];
+  }
 }
-
 
 void startThreads(int argc, char** argv) {
   /*if there is an error about bind address or address already used

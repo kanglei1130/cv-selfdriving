@@ -154,13 +154,14 @@ vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData,
   const int referencePktSize = 2000;
   // minimize padding
   int k = sz / referencePktSize + (sz % referencePktSize == 0 ? 0 : 1);
-
   int blockSize = sz / k + (sz % k == 0 ? 0 : 1);
   payload += string(k * blockSize - sz, '0');
 
   int n = round(k * double(1.0 + loss * 5.0));
-  n = k + 1;
   vector<PacketAndData> res;
+  if (payload.size() == 0) {
+    return res;
+  }
 
   for (int i = 0; i < k; ++i) {
     FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, i);

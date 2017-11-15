@@ -5,11 +5,60 @@
  *      Author: lkang
  */
 #include "utility.h"
+#include "packet_aggregator.h"
 
 namespace utility {
 
+
 // It requires another thread or terminal to start gstreamer
-void convertFileToVideo(string raw, int loss_percent) {
+void convertFileToVideoFEC(string raw, double loss_percent) {
+  std::ifstream ifs (raw.c_str(), std::ifstream::in);
+  PacketAggregator packetAggregator;
+
+  UdpSocket* udpsocket = new UdpSocket(kPacketSize);
+  udpsocket->UdpSocketSetUp("127.0.0.1", 4444);
+  long packetSize = 1500;
+  char* buffer = new char [65535];
+  char* assemble = new char [65535];
+  // the end char is 255
+  int sum = 0, i = 0;
+  while (ifs.good() && ifs.peek() != char(255)) {
+    char c = ifs.get();
+    string len = "";
+    while (c != '\n') {
+      len += c;
+      c = ifs.get();
+    }
+    long sz = std::stol(len);
+    ifs.read(buffer, sz);
+
+    FrameData frameData;
+    frameData.compressedDataSize = sz;
+    frameData.rawFrameIndex = i ++;
+    string payload(buffer, sz);
+    vector<PacketAndData> packets = packetAggregator.deaggregatePackets(frameData, payload, loss_percent);
+    for (int i = 0; i < packets.size(); ++i) {
+      if (getRandomNumber() < loss_percent * 100.0) {
+        continue;
+      }
+      PacketAndData cur = packets[i];
+      packetAggregator.insertPacket(cur.first, cur.second);
+    }
+    while (!packetAggregator.videoFrames.empty()) {
+      FrameAndData frameAndData = packetAggregator.videoFrames.front();
+      packetAggregator.videoFrames.pop_front();
+      string data = frameAndData.second;
+      udpsocket->SendTo("127.0.0.1", 6666, data);
+      usleep(10*1000);
+    }
+  }
+  ifs.close();
+  delete buffer;
+  delete assemble;
+}
+
+// It requires another thread or terminal to start gstreamer
+void convertFileToVideo(string raw, double loss_percent) {
   std::ifstream ifs (raw.c_str(), std::ifstream::in);
 
   UdpSocket* udpsocket = new UdpSocket(kPacketSize);
@@ -32,20 +81,23 @@ void convertFileToVideo(string raw, int loss_percent) {
     int lostSize = 0;
     for (int i = 0, newIndex = 0; i < numPackets; ++i) {
       int curLen = std::min(sz - packetSize * i, packetSize);
-      if (getRandomNumber() <= loss_percent) {
+      if (getRandomNumber() <= loss_percent * 100.0) {
         lostSize += curLen;
       } else {
         memcpy(assemble + newIndex * packetSize, buffer + i * packetSize, curLen);
         newIndex++;
       }
-    }  
-    udpsocket->SendByteTo("127.0.0.1", 6666, assemble, sz - lostSize);      
+    }
+    udpsocket->SendByteTo("127.0.0.1", 6666, assemble, sz - lostSize);
     usleep(10*1000);
   }
   ifs.close();
   delete buffer;
   delete assemble;
 }
+
+
+
 
 int getRandomNumber() {
   return uint_dist100(randomNumberGenerator);
