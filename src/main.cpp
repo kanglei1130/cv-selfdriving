@@ -31,6 +31,7 @@ void videoQuality(string rawVideo, string lossVideo);
 
 void testPacketAggregator();
 
+
 int main( int argc, char** argv )
 {
 
@@ -49,24 +50,18 @@ int main( int argc, char** argv )
   //Mat src = imread(in, IMREAD_COLOR);
 
 
-
   //utility::adjustTest(src);
+  startThreads(argc, argv);
 
-  // startThreads(argc, argv);
 
   //cout << currentTimeMillis() << endl;
-
-
-// 1 --- 34
-// 2 --- 20.4
-// 5 --- 18.7139
 /*
   string rawvideo = string("/home/lkang/Desktop/") + string("video.h264");
   string lossvideo = string("/home/lkang/Desktop/") + string("loss.h264");
   videoQuality(rawvideo, lossvideo);
 */
-  string path = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
-  utility::convertFileToVideoFEC(path, 0.1);
+  // string path = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
+  // utility::convertFileToVideoFEC(path, 0.1);
   // processVideo();
 
 

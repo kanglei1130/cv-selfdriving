@@ -83,22 +83,18 @@ void* RemoteController::UDPReceiverForCar(void* param){
     std::string header = data.substr(0, hend + 1);
     std::string body = data.substr(hend + 1);
 
-    std::cout<<header<<std::endl;
-
     Json::Value parsedFromString;
     Json::Reader reader;
     assert(reader.parse(header, parsedFromString));
 
     if (parsedFromString["type"].asString() == utility::FrameDataFromCar) {
-      FrameData frameData;
-      frameData.fromJson(header);
-      dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frameData.toJson());
-      long timeDiff = currentTimeMillis() - frameData.frameSendTime;
-
-
+      FramePacket framePacket;
+      framePacket.fromJson(header);
+      // dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frameData.toJson());
+      // long timeDiff = currentTimeMillis() - frameData.frameSendTime;
       dataPool->mtx.lock();      
-      dataPool->trackLatencyDifference(timeDiff);
-      dataPool->videoFrames.push_back(make_pair(frameData, body));
+      // dataPool->trackLatencyDifference(timeDiff);
+      dataPool->packetAggregator.insertPacket(framePacket, body);
       dataPool->mtx.unlock();      
     } else {
       cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
@@ -145,12 +141,12 @@ void* RemoteController::VideoFrameProcesser(void* param) {
   RemoteController *dataPool = (RemoteController*)param;
   while (dataPool->running) {
     dataPool->mtx.lock();
-    if (dataPool->videoFrames.empty()) {
+    if (dataPool->packetAggregator.videoFrames.empty()) {
       dataPool->mtx.unlock();
       this_thread::sleep_for(chrono::milliseconds(1));
     } else {
-      pair<FrameData, string> frame = dataPool->videoFrames.front();
-      dataPool->videoFrames.pop_front();
+      pair<FrameData, string> frame = dataPool->packetAggregator.videoFrames.front();
+      dataPool->packetAggregator.videoFrames.pop_front();
       dataPool->displayAndStoreVideo(frame.first, frame.second);
       dataPool->mtx.unlock();
     }

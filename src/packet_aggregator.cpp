@@ -63,7 +63,6 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
         payload += curPkt.second;
       }
     }
-    //
     this->videoFrames.push_back(make_pair(frameData, payload));
     return;
   }
@@ -119,7 +118,7 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
 }
 
 
-void PacketAggregator::insertPacket(FramePacket header, string& data) {
+void PacketAggregator::insertPacket(FramePacket& header, string& data) {
   int sequence = header.frameSequence;
   int k = header.k;
   // cout<<header.toJson()<<" "<<sequenceCounter.first<<" "<<sequenceCounter.second<<endl;
@@ -137,7 +136,7 @@ void PacketAggregator::insertPacket(FramePacket header, string& data) {
       sequenceCounter.second = 0;
     }
   } else {
-    if (sequenceCounter.second != 0) {
+    if (sequenceCounter.second != 0 && !this->videoPackets.empty()) {
       // aggregate last one
       aggregatePackets(this->videoPackets, this->sequenceCounter.first);
     }

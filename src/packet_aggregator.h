@@ -37,7 +37,7 @@ public:
   PacketAggregator();
   ~PacketAggregator();
   string generateFrame(FramePacket header, unsigned char **data);
-  void insertPacket(FramePacket header, string& data);
+  void insertPacket(FramePacket& header, string& data);
   void aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence);
 
   vector<PacketAndData> deaggregatePackets(FrameData& frameData, string& payload, double loss);

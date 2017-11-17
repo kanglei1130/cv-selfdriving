@@ -117,7 +117,7 @@ void FramePacket::fromJson(const string& json) {
    //parse json data and read more data
   this->packetSendTime = parsedFromString["packetSendTime"].asUInt64();
   this->frameSequence = parsedFromString["frameSequence"].asUInt();
-  this->index = parsedFromString["packetIndex"].asUInt();
+  this->index = parsedFromString["index"].asUInt();
   this->k = parsedFromString["k"].asInt();
   this->n = parsedFromString["n"].asInt();
   this->packetLength = parsedFromString["packetLength"].asInt();

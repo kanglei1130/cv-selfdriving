@@ -5,9 +5,10 @@
 #include "udp_socket.h"
 #include "utility.h"
 #include "data_model.h"
+#include "packet_aggregator.h"
 
 //this IP address changes when you change your lan cable.
-const string kLocalIPForCar = "192.168.11.2";
+const string kLocalIPForCar = "192.168.10.101";
 const int kLocalPortForCar = 55555;
 
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.
@@ -23,7 +24,7 @@ private:
   //mac address of node, and the node type
   bool use_gst_ {true};
   bool display_video_ {true};
-  bool store_video_ {true};
+  bool store_video_ {false};
 
   // frame data for gstreamer
   int gst_width_ {640};
@@ -42,7 +43,6 @@ private:
 
   //buffer information, updated every cycle
   mutex mtx; 
-  deque<pair<FrameData, string>> videoFrames;
 
   UdpSocket* udpsocketController_;
   UdpSocket* udpsocketCar_;
@@ -55,7 +55,7 @@ private:
   double latencyDifference {0.0};
   double latencyDeviation {0.0};
 
-  
+  PacketAggregator packetAggregator;
 public:
 
   
