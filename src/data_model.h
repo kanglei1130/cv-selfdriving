@@ -11,6 +11,17 @@
 
 #include "utility.h"
 
+
+struct RawFrame {
+  uint64_t captureTime {0};
+  uint32_t dataSize {0};
+  static const int requiredSpace = 500;
+  RawFrame();
+  ~RawFrame();
+  string toJson();
+  void fromJson(const std::string& json);
+};
+
 struct FramePacket {
   uint64_t packetSendTime{0};
   uint32_t frameSequence{0}; // uniquely identify a frame

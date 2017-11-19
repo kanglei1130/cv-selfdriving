@@ -18,18 +18,19 @@ void convertFileToVideoFEC(string raw, double loss_percent) {
   UdpSocket* udpsocket = new UdpSocket(kPacketSize);
   udpsocket->UdpSocketSetUp("127.0.0.1", 4444);
   long packetSize = 1500;
-  char* buffer = new char [65535];
-  char* assemble = new char [65535];
+  char* header = new char [RawFrame::requiredSpace];
+  char* buffer = new char [1000000];
+  char* assemble = new char [1000000];
   // the end char is 255
   int sum = 0, i = 0;
   while (ifs.good() && ifs.peek() != char(255)) {
-    char c = ifs.get();
-    string len = "";
-    while (c != '\n') {
-      len += c;
-      c = ifs.get();
+    ifs.read(header, RawFrame::requiredSpace);
+    RawFrame rawFrame;
+    rawFrame.fromJson(string(header));
+    int sz = rawFrame.dataSize;
+    if (sz == 0) {
+      continue;
     }
-    long sz = std::stol(len);
     ifs.read(buffer, sz);
 
     FrameData frameData;
@@ -53,6 +54,7 @@ void convertFileToVideoFEC(string raw, double loss_percent) {
     }
   }
   ifs.close();
+  delete header;
   delete buffer;
   delete assemble;
 }
@@ -64,18 +66,18 @@ void convertFileToVideo(string raw, double loss_percent) {
   UdpSocket* udpsocket = new UdpSocket(kPacketSize);
   udpsocket->UdpSocketSetUp("127.0.0.1", 4444);
   long packetSize = 1500;
-  char* buffer = new char [65535];
-  char* assemble = new char [65535];
+  char* header = new char [RawFrame::requiredSpace];
+  char* buffer = new char [1000000];
+  char* assemble = new char [1000000];
   // the end char is 255
-  int sum = 0;
   while (ifs.good() && ifs.peek() != char(255)) {
-    char c = ifs.get();
-    string len = "";
-    while (c != '\n') {
-      len += c;
-      c = ifs.get();
+    ifs.read(header, RawFrame::requiredSpace);
+    RawFrame rawFrame;
+    rawFrame.fromJson(string(header));
+    int sz = rawFrame.dataSize;
+    if (sz == 0) {
+      continue;
     }
-    long sz = std::stol(len);
     ifs.read(buffer, sz);
     int numPackets = (sz / packetSize) + (sz % packetSize == 0 ? 0 : 1);
     int lostSize = 0;
@@ -92,6 +94,7 @@ void convertFileToVideo(string raw, double loss_percent) {
     usleep(10*1000);
   }
   ifs.close();
+  delete header;
   delete buffer;
   delete assemble;
 }

@@ -51,7 +51,8 @@ int main( int argc, char** argv )
 
 
   //utility::adjustTest(src);
-  startThreads(argc, argv);
+
+  // startThreads(argc, argv);
 
 
   //cout << currentTimeMillis() << endl;
@@ -60,8 +61,8 @@ int main( int argc, char** argv )
   string lossvideo = string("/home/lkang/Desktop/") + string("loss.h264");
   videoQuality(rawvideo, lossvideo);
 */
-  // string path = string("/home/lkang/Desktop/video_data/") + string("1510172761262.raw");
-  // utility::convertFileToVideoFEC(path, 0.1);
+  string path = string("/home/lkang/Desktop/") + string("1511125613761.raw");
+  utility::convertFileToVideoFEC(path, 0.0);
   // processVideo();
 
 

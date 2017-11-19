@@ -7,6 +7,33 @@
 
 #include "data_model.h"
 
+
+RawFrame::RawFrame() {
+
+}
+RawFrame::~RawFrame() {
+
+}
+
+string RawFrame::toJson() {
+  Json::Value jsonData;
+  jsonData["captureTime"] = (Json::Value::UInt64)this->captureTime;
+  jsonData["dataSize"] = (Json::Value::UInt)this->dataSize;
+  Json::FastWriter fastWriter;
+  std::string output = fastWriter.write(jsonData);
+  return output;
+}
+
+void RawFrame::fromJson(const string& json) {
+  Json::Value parsedFromString;
+  Json::Reader reader;
+  assert(reader.parse(json, parsedFromString));
+
+   //parse json data and read more data
+  this->captureTime = parsedFromString["captureTime"].asUInt64();
+  this->dataSize = parsedFromString["dataSize"].asUInt();
+ }
+
 FrameData::FrameData() {
 
 }
