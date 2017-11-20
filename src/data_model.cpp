@@ -41,6 +41,15 @@ FrameData::~FrameData() {
 
 }
 
+void FrameData::extractFromFramePacket(const FramePacket& framePacket) {
+  this->frameSendTime = framePacket.packetSendTime;
+  this->transmitSequence = framePacket.frameSequence;
+  this->K = framePacket.k;
+  this->N = framePacket.n;
+  this->lossRate = 1.0 - double(this->K) / double(framePacket.index + 1);
+}
+
+
 string FrameData::toJson() {
   Json::Value jsonData;
   jsonData["frameSendTime"] = (Json::Value::UInt64)this->frameSendTime;
@@ -49,8 +58,10 @@ string FrameData::toJson() {
   jsonData["isIFrame"] = Json::Value(this->isIFrame);
   jsonData["originalDataSize"] = Json::Value(this->originalDataSize);
   jsonData["compressedDataSize"] = Json::Value(this->compressedDataSize);
+  jsonData["N"] = Json::Value(this->N);
+  jsonData["K"] = Json::Value(this->K);
+  jsonData["lossRate"] = Json::Value(this->lossRate);
   jsonData["type"] = Json::Value(utility::FrameDataFromServer);
-  jsonData["rawFrameIndex"] = Json::Value(this->rawFrameIndex);
   // cout<<jsonData.toStyledString()<<endl;
   // write JSON object to a string
   Json::FastWriter fastWriter;
@@ -69,10 +80,9 @@ void FrameData::fromJson(const std::string& json) {
   this->isIFrame = parsedFromString["isIFrame"].asBool();
   this->originalDataSize = parsedFromString["originalDataSize"].asUInt();
   this->compressedDataSize = parsedFromString["compressedDataSize"].asUInt();
-  this->rawFrameIndex = parsedFromString["rawFrameIndex"].asUInt();
-
-  this->steering = parsedFromString["steering"].asDouble();
-  this->speed = parsedFromString["speed"].asDouble();
+  this->N = parsedFromString["N"].asUInt();
+  this->K = parsedFromString["K"].asUInt();
+  this->lossRate = parsedFromString["lossRate"].asDouble();
 }
 
 

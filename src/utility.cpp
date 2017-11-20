@@ -35,7 +35,7 @@ void convertFileToVideoFEC(string raw, double loss_percent) {
 
     FrameData frameData;
     frameData.compressedDataSize = sz;
-    frameData.rawFrameIndex = i ++;
+    frameData.transmitSequence = i ++;
     string payload(buffer, sz);
     vector<PacketAndData> packets = packetAggregator.deaggregatePackets(frameData, payload, loss_percent);
     for (int i = 0; i < packets.size(); ++i) {

@@ -31,11 +31,10 @@ string PacketAggregator::generateFrame(FramePacket header, unsigned char **data)
 void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence) {
   int sz = videoPackets.size();
   assert(sz > 0);
-  FramePacket samplePkt = (*videoPackets.begin()).first;
+  // it must be the last received to calculate loss rate
+  FramePacket samplePkt = (*videoPackets.rbegin()).first;
   FrameData frameData;
-  frameData.frameSendTime = samplePkt.packetSendTime;
-  frameData.transmitSequence = samplePkt.frameSequence;
-
+  frameData.extractFromFramePacket(samplePkt);
   int k = samplePkt.k;
   unsigned int len = samplePkt.packetLength;
 
@@ -163,7 +162,7 @@ vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData,
   }
 
   for (int i = 0; i < k; ++i) {
-    FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, i);
+    FramePacket framePacket(sendTime, frameData.transmitSequence, blockSize, k, n, i);
     string data = payload.substr(i * blockSize, blockSize);
     res.push_back(make_pair(framePacket, data));
   }
@@ -184,7 +183,7 @@ vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData,
   }
   FEClib::fec_encode(blockSize, data_blocks, k, fec_blocks, n - k);
   for (int i = 0; i < fecCnt; ++i) {
-    FramePacket framePacket(sendTime, frameData.rawFrameIndex, blockSize, k, n, k + i);
+    FramePacket framePacket(sendTime, frameData.transmitSequence, blockSize, k, n, k + i);
     string data = string(reinterpret_cast<char*>(fec_blocks[i]), blockSize);
     res.push_back(make_pair(framePacket, data));
   }

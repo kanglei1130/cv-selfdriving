@@ -21,7 +21,7 @@ void RemoteController::trackLatencyDifference(long timeDiff) {
 }
 
 void RemoteController::displayAndStoreVideo(FrameData& header, string& body) {
- 
+
   long timeDiff = currentTimeMillis() - header.frameSendTime;
   if (this->consistentView) {
     long diff = timeDiff - this->latencyDifference;
@@ -90,7 +90,6 @@ void* RemoteController::UDPReceiverForCar(void* param){
     if (parsedFromString["type"].asString() == utility::FrameDataFromCar) {
       FramePacket framePacket;
       framePacket.fromJson(header);
-      // dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frameData.toJson());
       // long timeDiff = currentTimeMillis() - frameData.frameSendTime;
       dataPool->mtx.lock();      
       // dataPool->trackLatencyDifference(timeDiff);
@@ -147,6 +146,8 @@ void* RemoteController::VideoFrameProcesser(void* param) {
     } else {
       pair<FrameData, string> frame = dataPool->packetAggregator.videoFrames.front();
       dataPool->packetAggregator.videoFrames.pop_front();
+      dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frame.first.toJson());
+
       dataPool->displayAndStoreVideo(frame.first, frame.second);
       dataPool->mtx.unlock();
     }

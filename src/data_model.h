@@ -11,7 +11,9 @@
 
 #include "utility.h"
 
-
+/**
+ * used for offline processing
+ */
 struct RawFrame {
   uint64_t captureTime {0};
   uint32_t dataSize {0};
@@ -46,12 +48,13 @@ struct FrameData {
   uint32_t originalDataSize{0};
   uint32_t compressedDataSize{0};
   uint64_t serverTime{0};
-  uint32_t rawFrameIndex{0};
-  double speed{0.0};
-  double steering{0.5};
+  int N {0};
+  int K {0};
+  double lossRate{0.0};
 
   FrameData();
   ~FrameData();
+  void extractFromFramePacket(const FramePacket& framePacket);
   string toJson();
   void fromJson(const std::string& json);
 };
