@@ -41,12 +41,16 @@ FrameData::~FrameData() {
 
 }
 
-void FrameData::extractFromFramePacket(const FramePacket& framePacket) {
+void FrameData::extractFromFramePacket(const FramePacket& framePacket, int numReceived) {
   this->frameSendTime = framePacket.packetSendTime;
   this->transmitSequence = framePacket.frameSequence;
   this->K = framePacket.k;
   this->N = framePacket.n;
-  this->lossRate = 1.0 - double(this->K) / double(framePacket.index + 1);
+  if (numReceived < this->K) {
+    this->lossRate = 1.0 - double(numReceived)/double(this->N);
+  } else {
+    this->lossRate = 1.0 - double(this->K) / double(framePacket.index + 1);
+  }
 }
 
 

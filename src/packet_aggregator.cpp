@@ -34,7 +34,7 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
   // it must be the last received to calculate loss rate
   FramePacket samplePkt = (*videoPackets.rbegin()).first;
   FrameData frameData;
-  frameData.extractFromFramePacket(samplePkt);
+  frameData.extractFromFramePacket(samplePkt, videoPackets.size());
   int k = samplePkt.k;
   unsigned int len = samplePkt.packetLength;
 

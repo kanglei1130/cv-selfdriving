@@ -54,7 +54,7 @@ struct FrameData {
 
   FrameData();
   ~FrameData();
-  void extractFromFramePacket(const FramePacket& framePacket);
+  void extractFromFramePacket(const FramePacket& framePacket, int numReceived);
   string toJson();
   void fromJson(const std::string& json);
 };
