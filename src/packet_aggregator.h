@@ -31,6 +31,11 @@ class PacketAggregator {
 private:
   pair<int, int> sequenceCounter;
   set<PacketAndData, classComp> videoPackets;
+
+  int duration {1000}; // ms
+  uint64_t lastRecord {0}; // time stamp
+  uint64_t dataReceived {0}; // byte
+  double bandwidth {0.0}; //mbps
 public:
   deque<pair<FrameData, string>> videoFrames;
 
@@ -38,6 +43,7 @@ public:
   ~PacketAggregator();
   string generateFrame(FramePacket header, unsigned char **data);
   void insertPacket(FramePacket& header, string& data);
+  void trackBandwidth(const FramePacket& header, const string& data);
   void aggregatePackets(set<PacketAndData, classComp>& videoPackets, int sequence);
 
   vector<PacketAndData> deaggregatePackets(FrameData& frameData, string& payload, double loss);

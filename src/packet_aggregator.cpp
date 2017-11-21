@@ -35,6 +35,8 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
   FramePacket samplePkt = (*videoPackets.rbegin()).first;
   FrameData frameData;
   frameData.extractFromFramePacket(samplePkt, videoPackets.size());
+  frameData.bandwidth = this->bandwidth;
+
   int k = samplePkt.k;
   unsigned int len = samplePkt.packetLength;
 
@@ -116,8 +118,24 @@ void PacketAggregator::aggregatePackets(set<PacketAndData, classComp>& videoPack
   delete [] erased_blocks;
 }
 
+void PacketAggregator::trackBandwidth(const FramePacket& header, const string& data) {
+  // record bandwidth
+  uint64_t now = currentTimeMillis();
+  this->dataReceived += data.size();
+  if (this->lastRecord == 0) {
+    this->lastRecord = now;
+  }
+  if (now - this->lastRecord >= this->duration) {
+    this->bandwidth = double(this->dataReceived * 8.0) / double(1e3 * (now - this->lastRecord));
+    this->lastRecord = now;
+    this->dataReceived = 0;
+  }
+}
 
 void PacketAggregator::insertPacket(FramePacket& header, string& data) {
+
+  trackBandwidth(header, data);
+
   int sequence = header.frameSequence;
   int k = header.k;
   // cout<<header.toJson()<<" "<<sequenceCounter.first<<" "<<sequenceCounter.second<<endl;

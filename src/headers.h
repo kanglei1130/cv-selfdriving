@@ -56,7 +56,7 @@
 using namespace std;
 using namespace std::chrono;
 
-static inline long currentTimeMillis() {
+static inline uint64_t currentTimeMillis() {
 	return chrono::duration_cast<chrono::milliseconds>(chrono::system_clock::now().time_since_epoch()).count();
 }
 

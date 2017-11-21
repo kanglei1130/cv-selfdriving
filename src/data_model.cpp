@@ -65,6 +65,7 @@ string FrameData::toJson() {
   jsonData["N"] = Json::Value(this->N);
   jsonData["K"] = Json::Value(this->K);
   jsonData["lossRate"] = Json::Value(this->lossRate);
+  jsonData["bandwidth"] = Json::Value(this->bandwidth);
   jsonData["type"] = Json::Value(utility::FrameDataFromServer);
   // cout<<jsonData.toStyledString()<<endl;
   // write JSON object to a string
@@ -87,6 +88,7 @@ void FrameData::fromJson(const std::string& json) {
   this->N = parsedFromString["N"].asUInt();
   this->K = parsedFromString["K"].asUInt();
   this->lossRate = parsedFromString["lossRate"].asDouble();
+  this->bandwidth = parsedFromString["bandwidth"].asDouble();
 }
 
 

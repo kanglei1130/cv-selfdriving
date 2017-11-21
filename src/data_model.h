@@ -51,6 +51,7 @@ struct FrameData {
   int N {0};
   int K {0};
   double lossRate{0.0};
+  double bandwidth{0.0};
 
   FrameData();
   ~FrameData();
