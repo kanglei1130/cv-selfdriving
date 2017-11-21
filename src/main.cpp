@@ -106,10 +106,13 @@ void startThreads(int argc, char** argv) {
   pthread_t threads[num];
 
   pthread_create (&(threads[0]), NULL, &RemoteController::GstreamerReceiver, dataPool);
-  pthread_create (&(threads[1]), NULL, &RemoteController::UDPReceiverForCar, dataPool);
-  pthread_create (&(threads[2]), NULL, &RemoteController::ControlPanel, dataPool);
-  pthread_create (&(threads[3]), NULL, &RemoteController::VideoFrameProcesser, dataPool);
-
+  pthread_create (&(threads[1]), NULL, &RemoteController::ControlPanel, dataPool);
+  pthread_create (&(threads[2]), NULL, &RemoteController::VideoFrameProcesser, dataPool);
+  if (dataPool->use_tcp_) {
+    pthread_create (&(threads[3]), NULL, &RemoteController::TCPReceiverForCar, dataPool);
+  } else {
+    pthread_create (&(threads[3]), NULL, &RemoteController::UDPReceiverForCar, dataPool);
+  }
   for(int i = 0; i < num; ++i) {
     pthread_join(threads[i], NULL);
   }

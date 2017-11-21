@@ -3,6 +3,7 @@
 
 #include "headers.h"
 #include "udp_socket.h"
+#include "tcp_server_socket.h"
 #include "utility.h"
 #include "data_model.h"
 #include "packet_aggregator.h"
@@ -26,6 +27,7 @@ private:
   bool display_video_ {true};
   bool store_video_ {false};
 
+
   // frame data for gstreamer
   int gst_width_ {640};
   int gst_height_ {480};
@@ -46,6 +48,8 @@ private:
 
   UdpSocket* udpsocketController_;
   UdpSocket* udpsocketCar_;
+
+  TcpServerSocket* tcpServer_;
   // Car's IP address via the WIFI
   string remoteIPCar = "";
   int remotePortCar {5555};
@@ -56,9 +60,11 @@ private:
   double latencyDeviation {0.0};
 
   PacketAggregator packetAggregator;
+
+  int tcpClientSocket {0};
 public:
 
-  
+  bool use_tcp_ {false};
   void trackLatencyDifference(long frameSendTime);
   void displayAndStoreVideo(FrameData& header, string& data);
 
@@ -71,6 +77,10 @@ public:
 
     udpsocketCar_ = new UdpSocket(kPacketSize);
     udpsocketCar_->UdpSocketSetUp(kLocalIPForCar, kLocalPortForCar);
+
+    tcpServer_ = new TcpServerSocket();
+    tcpServer_->TcpServerSetUp();
+
     running = true;
     cout<<"DataPool is runing"<<endl;
 
@@ -84,13 +94,16 @@ public:
   }
   ~RemoteController() {
     ofs_.close();
+    delete udpsocketController_;
+    delete udpsocketCar_;
+    delete tcpServer_;
   }
 
   static void* UDPReceiverForCar(void* dataPool);
   static void* ControlPanel(void* dataPool);
   static void* GstreamerReceiver(void* dataPool);
   static void* VideoFrameProcesser(void* dataPool);
-
+  static void* TCPReceiverForCar(void* dataPool);
 };
 
 #endif

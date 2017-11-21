@@ -27,14 +27,14 @@ struct RawFrame {
 struct FramePacket {
   uint64_t packetSendTime{0};
   uint32_t frameSequence{0}; // uniquely identify a frame
-  short packetLength{0};
-  short k{0};
-  short n{0};
-  short index{0}; // 0 ... n - 1
-
+  int packetLength{0};
+  int k{0};
+  int n{0};
+  int index{0}; // 0 ... n - 1
+  static const int requiredSpace = 150;
 
   FramePacket();
-  FramePacket(uint64_t sendTime, uint32_t frameSequence, short len, short k, short n, short index):
+  FramePacket(uint64_t sendTime, uint32_t frameSequence, int len, int k, int n, int index):
     packetSendTime(sendTime), frameSequence(frameSequence), packetLength(len), k(k), n(n), index(index) {}
   ~FramePacket();
   string toJson();

@@ -40,30 +40,6 @@ void RemoteController::displayAndStoreVideo(FrameData& header, string& body) {
 }
 
 
-/**
- * The first character must be '{'
- */
-int RemoteController::getJsonHeaderIndex(string& data) {
-  int hend = 0;
-  int num_left_brace = 0, num_right_brace = 0;
-  for(int i = 0; i < data.size(); ++i) {
-    char ch = data[i];
-    if (ch == '{') {
-      num_left_brace++;
-    } else if (ch == '}') {
-      num_right_brace++;
-    } else {
-
-    }
-    // cout<<"ch:"<<ch<<" "<<num_left_brace<<" "<<num_right_brace<<endl;
-    if (num_left_brace == num_right_brace) {
-      hend = i;
-      break;
-    }
-  }
-  return hend;
-}
-
 //this thread process data from the car, which include the image and speed status data.
 void* RemoteController::UDPReceiverForCar(void* param){
   cout<<"Enter UDP Receiver from Car"<<endl;;
@@ -77,11 +53,8 @@ void* RemoteController::UDPReceiverForCar(void* param){
     if (data.length() <= 0) {
       continue;
     }
-    //send data back to android
-    int hend = dataPool->getJsonHeaderIndex(data);
-    assert(hend != 0);
-    std::string header = data.substr(0, hend + 1);
-    std::string body = data.substr(hend + 1);
+    std::string header = data.substr(0, FramePacket::requiredSpace);
+    std::string body = data.substr(FramePacket::requiredSpace);
 
     Json::Value parsedFromString;
     Json::Reader reader;
@@ -146,8 +119,12 @@ void* RemoteController::VideoFrameProcesser(void* param) {
     } else {
       pair<FrameData, string> frame = dataPool->packetAggregator.videoFrames.front();
       dataPool->packetAggregator.videoFrames.pop_front();
-      dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, frame.first.toJson());
-
+      string data = frame.first.toJson();
+      if (dataPool->use_tcp_) {
+        dataPool->tcpServer_->TcpServerWrite(dataPool->tcpClientSocket, data.c_str(), data.size());
+      } else {
+        dataPool->udpsocketCar_->SendTo(dataPool->remoteIPCar, dataPool->remotePortCar, data);
+      }
       dataPool->displayAndStoreVideo(frame.first, frame.second);
       dataPool->mtx.unlock();
     }
@@ -202,6 +179,39 @@ void* RemoteController::GstreamerReceiver(void* param) {
   pthread_exit(NULL);
 }
 
+//this thread process data from the car, which include the image and speed status data.
+void* RemoteController::TCPReceiverForCar(void* param){
+  cout<<"Enter TCP Receiver from Car"<<endl;;
+  RemoteController *dataPool = (RemoteController*)param;
+  dataPool->tcpClientSocket = dataPool->tcpServer_->Accept();
 
+  char* headerBuffer = new char[FramePacket::requiredSpace];
+  char* dataBuffer = new char[10000];
+  while(dataPool->running) {
+    dataPool->tcpServer_->TcpServerReadN(dataPool->tcpClientSocket, headerBuffer, FramePacket::requiredSpace);
+    //send data back to android
+    string header(headerBuffer, FramePacket::requiredSpace);
+    Json::Value parsedFromString;
+    Json::Reader reader;
+    assert(reader.parse(header, parsedFromString));
+    int len = parsedFromString["packetLength"].asUInt();
+    dataPool->tcpServer_->TcpServerReadN(dataPool->tcpClientSocket, dataBuffer, len);
+    string body(dataBuffer, len);
+    if (parsedFromString["type"].asString() == utility::FrameDataFromCar) {
+      FramePacket framePacket;
+      framePacket.fromJson(header);
+      dataPool->mtx.lock();
+      // dataPool->trackLatencyDifference(timeDiff);
+      dataPool->packetAggregator.insertPacket(framePacket, body);
+      dataPool->mtx.unlock();
+    } else {
+      cout<<"Unknown Type:"<<parsedFromString.toStyledString()<<endl;
+    }
+  }
+  delete headerBuffer;
+  delete dataBuffer;
+  cout<<"UDPReceiver exit"<<endl;
+  pthread_exit(NULL);
+}
 
 
