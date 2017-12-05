@@ -52,7 +52,7 @@ int main( int argc, char** argv )
 
   //utility::adjustTest(src);
 
-  startThreads(argc, argv);
+  // startThreads(argc, argv);
 
 
   //cout << currentTimeMillis() << endl;
@@ -65,7 +65,7 @@ int main( int argc, char** argv )
   string path = string("/home/lkang/Desktop/") + string("1511125613761.raw");
   utility::convertFileToVideoFEC(path, 0.0);
   */
-  // processVideo();
+  processVideo();
 
 
   return 0;
@@ -152,8 +152,8 @@ void videoQuality(string rawVideo, string lossVideo) {
 
 
 void processVideo() {
-  VideoCapture cap("/home/lkang/Desktop/sample.h264"); // open the default camera
-
+  VideoCapture cap("/home/lkang/Desktop/video.h264"); // open the default camera
+  string output{"/home/lkang/Desktop/images/"};
   if(!cap.isOpened()) { // check if we succeeded
     cout<<"not able to open"<<endl;
     return;
@@ -170,11 +170,14 @@ void processVideo() {
     }
 
     // int num = processImage(frame, gray);
-    imshow("gray", frame);
-    waitKey(100);
-    usleep(0);
+    // imshow("gray", frame);
+    // waitKey(0);
+    // sleep(1);
+    cv::imwrite(output + to_string(counter) + ".png", frame);
 
-    //break;
+    if (counter > 10) {
+      break;
+    }
   }
   cout<<counter<<endl;
 }
