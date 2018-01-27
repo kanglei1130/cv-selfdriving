@@ -145,9 +145,18 @@ void PacketAggregator::insertPacket(FramePacket& header, string& data) {
   if (sequenceCounter.first == sequence) {
     this->videoPackets.insert(make_pair(header, data));
     sequenceCounter.second ++;
+
+  	////
+    //cout<<"value sequenceCounter.second: " <<sequenceCounter.second<<endl;
+    //////
+   // cout<<"value n: " <<header.n<<endl;
+    //cout<<"package size: " <<data.length()<<endl;
+    //////
+    ////
     if (sequenceCounter.second == k) {
       // aggregate current one
       aggregatePackets(this->videoPackets, sequence);
+
       this->videoPackets.clear();
       sequenceCounter.first ++;
       sequenceCounter.second = 0;
@@ -162,6 +171,10 @@ void PacketAggregator::insertPacket(FramePacket& header, string& data) {
     sequenceCounter.first = sequence;
     sequenceCounter.second = 1;
   }
+  //cout<<"value sequenceCounter.first: " <<sequenceCounter.first<<endl;
+
+
+
 }
 
 vector<PacketAndData> PacketAggregator::deaggregatePackets(FrameData& frameData, string& payload, double loss) {

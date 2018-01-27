@@ -44,12 +44,12 @@
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.c.linker.base.678310119" name="GCC C Linker" superClass="cdt.managedbuild.tool.gnu.c.linker.base"/>
 							<tool id="cdt.managedbuild.tool.gnu.cpp.linker.base.658379833" name="GCC C++ Linker" superClass="cdt.managedbuild.tool.gnu.cpp.linker.base">
-								<option id="gnu.cpp.link.option.libs.1004336136" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
+								<option id="gnu.cpp.link.option.libs.1004336136" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" useByScannerDiscovery="false" valueType="libs">
 									<listOptionValue builtIn="false" value="opencv_highgui"/>
+									<listOptionValue builtIn="false" value="curl"/>
 									<listOptionValue builtIn="false" value="gstreamer-1.0"/>
 									<listOptionValue builtIn="false" value="gobject-2.0"/>
 									<listOptionValue builtIn="false" value="glib-2.0"/>
-									<listOptionValue builtIn="false" value="tensorflow"/>
 									<listOptionValue builtIn="false" value="jsoncpp"/>
 									<listOptionValue builtIn="false" value="pthread"/>
 									<listOptionValue builtIn="false" value="opencv_superres"/>

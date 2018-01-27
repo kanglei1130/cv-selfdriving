@@ -9,7 +9,7 @@
 #include "packet_aggregator.h"
 
 //this IP address changes when you change your lan cable.
-const string kLocalIPForCar = "192.168.10.101";
+const string kLocalIPForCar = "192.168.11.2";
 const int kLocalPortForCar = 55555;
 
 //this IP address is automotive shown when tethering on. When turning tethering on, this IP always changes.

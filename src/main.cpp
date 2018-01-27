@@ -5,7 +5,13 @@
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+////////////
+#include <iostream>
+#include <curl/curl.h>
+#include <stdio.h>
+#include <curl/easy.h>
 
+/////////////////
 
 #include "headers.h"
 #include "lane_marker_detector.h"
@@ -31,6 +37,7 @@ void videoQuality(string rawVideo, string lossVideo);
 
 void testPacketAggregator();
 
+void downLoadImage(double latitude, double longitude, double heading, double pitch,  int straightNum, int degree);
 
 int main( int argc, char** argv )
 {
@@ -46,31 +53,105 @@ int main( int argc, char** argv )
 
 
 
-  //string in = string("/home/wei/Pictures/1.jpg/");
+  //string in = string("/home/wei/Pictures/blur test image/worst_image.png");
   //Mat src = imread(in, IMREAD_COLOR);
 
 
   //utility::adjustTest(src);
+  //utility::blurDetection_test(src);
 
-  startThreads(argc, argv);
 
+  //startThreads(argc, argv);
 
   //cout << currentTimeMillis() << endl;
 /*
   string rawvideo = string("/home/lkang/Desktop/") + string("video.h264");
   string lossvideo = string("/home/lkang/Desktop/") + string("loss.h264");
   videoQuality(rawvideo, lossvideo);
+
 */
+
+/*  string rawvideo = string("/home/wei/mobisysy/srcdat/video/turning_threshold/") + string("0_0.5.raw");
+  //string testpath = string("/home/wei/mobisysy/compair_photo/video1/") + string("adapted_video.raw");
+
+  utility::convertFileToVideo(rawvideo,0.0);*/
+
   /*
   string path = string("/home/lkang/Desktop/") + string("1511125613761.raw");
   utility::convertFileToVideoFEC(path, 0.0);
   */
-  // processVideo();
+  //processVideo();
 
+
+  double pitch = 0.0;
+  double latitude = 46.414382;
+  double longitude = 10.013988;
+  double heading = 151.78;
+  int straightNum = 1;
+  int rotationNum = 10;
+  downLoadImage(latitude, longitude, heading, pitch, straightNum, rotationNum);
 
   return 0;
 
 }
+
+
+/////////////////////////////
+/* download the image */
+void downLoadImage(double latitude, double longitude, double heading, double pitch, int straightNum, int rotationNum) {
+	CURL *image;
+	CURLcode imgresult;
+	FILE *fp;
+	char* tetsurl = "http://pimg.tradeindia.com/01063301/b/1/CRO-Oscilloscope.jpg";
+
+	cout<<"before"<<endl;
+	for(int i=0; i <straightNum;i++){
+		for(int j=0; j <rotationNum;j++){
+			image = curl_easy_init();
+			cout<<"initial"<<endl;
+
+			if( image ){
+				// Open file
+				std::string outfilename = "/home/wei/Downloads/cv-selfdriving/result/downloadedImage/straight_"
+						+ to_string(i+1) + "_rotation_" + to_string(j+1) + ".jpg";
+
+				fp = fopen(outfilename.c_str(), "wb");
+				if( fp == NULL ) cout << "File cannot be opened";
+				cout<<"open folder"<<endl;
+
+				/*if (heading+360/j<360){
+				} else {
+					heading = heading+360/j -360;
+				}*/
+
+				std::string url= "https://maps.googleapis.com/maps/api/streetview?size=10000x10000&\location=" + to_string(latitude+2*i)
+							+ std::string(",") + to_string(longitude+2*i) + std::string("&\heading=") + to_string(heading+10*j)
+							+ std::string("&\pitch=") + to_string(pitch);
+				curl_easy_setopt(image, CURLOPT_URL, url.c_str());
+				wait();
+				curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, NULL);
+				curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
+		        //curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+
+				// Grab image
+				imgresult = curl_easy_perform(image);
+				if( imgresult ){
+					cout << "Cannot grab the image!\n";
+				}
+			}
+
+			// Clean up the resources
+			curl_easy_cleanup(image);
+			cout<<"cleanup"<<endl;
+			// Close the file
+			fclose(fp);
+			cout<<"close fp"<<endl;
+		}
+	}
+
+}
+///////////////////////////////
 
 void testPacketAggregator() {
   PacketAggregator packetAggregator;
@@ -152,7 +233,8 @@ void videoQuality(string rawVideo, string lossVideo) {
 
 
 void processVideo() {
-  VideoCapture cap("/home/lkang/Desktop/sample.h264"); // open the default camera
+  VideoCapture cap("/home/wei/mobisysy/compair_photo/video/w_ovideo1.h264"); // open the default camera
+  string output{"/home/wei/mobisysy/compair_photo/video2/1_/"};
 
   if(!cap.isOpened()) { // check if we succeeded
     cout<<"not able to open"<<endl;
@@ -170,10 +252,14 @@ void processVideo() {
     }
 
     // int num = processImage(frame, gray);
-    imshow("gray", frame);
-    waitKey(100);
-    usleep(0);
+    //imshow("gray", frame);
+    //waitKey(100);
+    //usleep(0);
+    cv::imwrite(output + to_string(counter) + ".png", frame);
 
+    if (counter > 1000) {
+    	break;
+    }
     //break;
   }
   cout<<counter<<endl;

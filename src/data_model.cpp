@@ -40,6 +40,8 @@ FrameData::FrameData() {
 FrameData::~FrameData() {
 
 }
+int counter = 0;//wei
+long length = 0;//wei
 
 void FrameData::extractFromFramePacket(const FramePacket& framePacket, int numReceived) {
   this->frameSendTime = framePacket.packetSendTime;
@@ -51,6 +53,13 @@ void FrameData::extractFromFramePacket(const FramePacket& framePacket, int numRe
   } else {
     this->lossRate = 1.0 - double(this->K) / double(framePacket.index + 1);
   }
+  ////////////wei
+
+  if (K != N){
+	  counter++;
+	  cout<<"value k!= n: " << counter <<endl;
+  }
+  ////////////wei
 }
 
 

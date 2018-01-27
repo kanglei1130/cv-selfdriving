@@ -118,6 +118,20 @@ double blurDetection(cv::Mat& src) {
   return focusMeasure;
 }
 
+double blurDetection_test(Mat& src) {
+  cout<<"start"<<endl;
+  assert (!src.empty());
+  Mat gray;
+  cvtColor(src, gray, CV_BGR2GRAY);
+  Mat lap;
+  Laplacian(gray, lap, CV_64F);
+  Scalar mu, sigma;
+  meanStdDev(lap, mu, sigma);
+  double focusMeasure = sigma.val[0]*sigma.val[0];
+  cout<<"focusMeasure"<<focusMeasure<<endl;
+
+  return focusMeasure;
+}
 
 int adjustTest(Mat& src)
 {

@@ -46,10 +46,13 @@ void* RemoteController::UDPReceiverForCar(void* param){
   RemoteController *dataPool = (RemoteController*)param;
   string data;
   
+  int counter = 0;//wei
+  long totalreceivedlength = 0;//wei
 
   while(dataPool->running) {
     dataPool->udpsocketCar_->ReceiveFrom(dataPool->remoteIPCar, dataPool->remotePortCar, data);
-    //cout<<"data is: " + data<<endl;
+    totalreceivedlength += data.length();
+    cout<<"totalreceivedlength is: "<<totalreceivedlength<<endl;
     if (data.length() <= 0) {
       continue;
     }
@@ -64,6 +67,10 @@ void* RemoteController::UDPReceiverForCar(void* param){
       FramePacket framePacket;
       framePacket.fromJson(header);
       // long timeDiff = currentTimeMillis() - frameData.frameSendTime;
+      ///////
+      //counter++;
+      //cout<<counter<<"   "<<header<<endl;
+      /////
       dataPool->mtx.lock();      
       // dataPool->trackLatencyDifference(timeDiff);
       dataPool->packetAggregator.insertPacket(framePacket, body);

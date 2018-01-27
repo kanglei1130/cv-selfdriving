@@ -45,6 +45,8 @@ void convertFileToVideoFEC(string file, double loss_percent = 0.0);
  */
 double blurDetection(cv::Mat& src);
 
+
+double blurDetection_test(Mat& src);
 /**
  * Canny threshold test
  */
