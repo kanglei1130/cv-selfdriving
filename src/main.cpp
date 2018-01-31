@@ -11,6 +11,15 @@
 #include <stdio.h>
 #include <curl/easy.h>
 
+#include <stdio.h>  /* defines FILENAME_MAX */
+// #define WINDOWS  /* uncomment this line to use it for windows.*/
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
 /////////////////
 
 #include "headers.h"
@@ -37,7 +46,9 @@ void videoQuality(string rawVideo, string lossVideo);
 
 void testPacketAggregator();
 
-void downLoadImage(double latitude, double longitude, double heading, double pitch,  int straightNum, int degree);
+void downLoadImage(double latitude, double longitude, double heading, double pitch,  int i, int j);
+//void startDownLoadImage(double latitude, double longitude, double heading, double pitch, int straightNum, int rotationNum);
+string GetCurrentWorkingDir();
 
 int main( int argc, char** argv )
 {
@@ -89,67 +100,61 @@ int main( int argc, char** argv )
   double heading = 151.78;
   int straightNum = 1;
   int rotationNum = 10;
-  downLoadImage(latitude, longitude, heading, pitch, straightNum, rotationNum);
+
+  for(int i=0; i <straightNum;i++){
+	for(int j=0; j <rotationNum;j++){
+		downLoadImage(latitude, longitude,heading,pitch,i,j);
+	}
+  }
 
   return 0;
 
 }
 
 
-/////////////////////////////
 /* download the image */
-void downLoadImage(double latitude, double longitude, double heading, double pitch, int straightNum, int rotationNum) {
+void downLoadImage(double latitude, double longitude, double heading, double pitch, int i, int j) {
 	CURL *image;
 	CURLcode imgresult;
 	FILE *fp;
-	char* tetsurl = "http://pimg.tradeindia.com/01063301/b/1/CRO-Oscilloscope.jpg";
 
-	cout<<"before"<<endl;
-	for(int i=0; i <straightNum;i++){
-		for(int j=0; j <rotationNum;j++){
-			image = curl_easy_init();
-			cout<<"initial"<<endl;
+	image = curl_easy_init();
+	cout<<"initial"<<endl;
+	if( image ){
+		// Get local path, create folder and Open file
+		std::string outfilename = GetCurrentWorkingDir() + "/result/downloadedImage/straight_"
+				+ to_string(i+1) + "_rotation_" + to_string(j+1) + ".jpg";
 
-			if( image ){
-				// Open file
-				std::string outfilename = "/home/wei/Downloads/cv-selfdriving/result/downloadedImage/straight_"
-						+ to_string(i+1) + "_rotation_" + to_string(j+1) + ".jpg";
+		fp = fopen(outfilename.c_str(), "wb");
+		if( fp == NULL ) cout << "File cannot be opened";
 
-				fp = fopen(outfilename.c_str(), "wb");
-				if( fp == NULL ) cout << "File cannot be opened";
-				cout<<"open folder"<<endl;
+		std::string url= "https://maps.googleapis.com/maps/api/streetview?size=10000x10000&\location=" + to_string(latitude+2*i)
+					+ std::string(",") + to_string(longitude+2*i) + std::string("&\heading=") + to_string(heading+10*j)
+					+ std::string("&\pitch=") + to_string(pitch);
+		curl_easy_setopt(image, CURLOPT_URL, url.c_str());
+		curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, NULL);
+		curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
 
-				/*if (heading+360/j<360){
-				} else {
-					heading = heading+360/j -360;
-				}*/
-
-				std::string url= "https://maps.googleapis.com/maps/api/streetview?size=10000x10000&\location=" + to_string(latitude+2*i)
-							+ std::string(",") + to_string(longitude+2*i) + std::string("&\heading=") + to_string(heading+10*j)
-							+ std::string("&\pitch=") + to_string(pitch);
-				curl_easy_setopt(image, CURLOPT_URL, url.c_str());
-				wait();
-				curl_easy_setopt(image, CURLOPT_WRITEFUNCTION, NULL);
-				curl_easy_setopt(image, CURLOPT_WRITEDATA, fp);
-		        //curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-
-
-				// Grab image
-				imgresult = curl_easy_perform(image);
-				if( imgresult ){
-					cout << "Cannot grab the image!\n";
-				}
-			}
-
-			// Clean up the resources
-			curl_easy_cleanup(image);
-			cout<<"cleanup"<<endl;
-			// Close the file
-			fclose(fp);
-			cout<<"close fp"<<endl;
+		// Grab image
+		imgresult = curl_easy_perform(image);
+		if( imgresult ){
+			cout << "Cannot grab the image!\n";
 		}
 	}
+	// Clean up the resources
+	curl_easy_cleanup(image);
+	cout<<"cleanup"<<endl;
+	// Close the file
+	fclose(fp);
+	cout<<"close fp"<<endl;
+}
 
+//get the local file path
+std::string GetCurrentWorkingDir( void ) {
+  char buff[FILENAME_MAX];
+  GetCurrentDir( buff, FILENAME_MAX );
+  std::string current_working_dir(buff);
+  return current_working_dir;
 }
 ///////////////////////////////
 
