@@ -50,6 +50,21 @@
 #include <thread>
 #include <mutex>    
 
+
+/////wei
+#include <curl/curl.h>
+#include <curl/easy.h>
+
+#include <cstdlib>
+// #define WINDOWS  /* uncomment this line to use it for windows.*/
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
+
 /////////////////////////////
 #include <gst/gst.h>
 

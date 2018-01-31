@@ -5,22 +5,6 @@
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
-////////////
-#include <iostream>
-#include <curl/curl.h>
-#include <stdio.h>
-#include <curl/easy.h>
-
-#include <stdio.h>  /* defines FILENAME_MAX */
-// #define WINDOWS  /* uncomment this line to use it for windows.*/
-#ifdef WINDOWS
-#include <direct.h>
-#define GetCurrentDir _getcwd
-#else
-#include <unistd.h>
-#define GetCurrentDir getcwd
-#endif
-/////////////////
 
 #include "headers.h"
 #include "lane_marker_detector.h"
@@ -47,7 +31,7 @@ void videoQuality(string rawVideo, string lossVideo);
 void testPacketAggregator();
 
 void downLoadImage(double latitude, double longitude, double heading, double pitch,  int i, int j);
-//void startDownLoadImage(double latitude, double longitude, double heading, double pitch, int straightNum, int rotationNum);
+void creatDir();
 string GetCurrentWorkingDir();
 
 int main( int argc, char** argv )
@@ -93,7 +77,6 @@ int main( int argc, char** argv )
   */
   //processVideo();
 
-
   double pitch = 0.0;
   double latitude = 46.414382;
   double longitude = 10.013988;
@@ -108,7 +91,6 @@ int main( int argc, char** argv )
   }
 
   return 0;
-
 }
 
 
@@ -121,10 +103,12 @@ void downLoadImage(double latitude, double longitude, double heading, double pit
 	image = curl_easy_init();
 	cout<<"initial"<<endl;
 	if( image ){
-		// Get local path, create folder and Open file
+		// Get local path, create folder
+		creatDir();
+		//Open file
 		std::string outfilename = GetCurrentWorkingDir() + "/result/downloadedImage/straight_"
 				+ to_string(i+1) + "_rotation_" + to_string(j+1) + ".jpg";
-
+		cout<<GetCurrentWorkingDir()<<endl;
 		fp = fopen(outfilename.c_str(), "wb");
 		if( fp == NULL ) cout << "File cannot be opened";
 
@@ -156,6 +140,18 @@ std::string GetCurrentWorkingDir( void ) {
   std::string current_working_dir(buff);
   return current_working_dir;
 }
+
+//creat a new directory
+void creatDir(){
+	std::string dir = "mkdir -p " + GetCurrentWorkingDir() + "/result/downloadedImage";
+	const int dir_err = system(dir.c_str());
+	if (-1 == dir_err)
+	{
+	    printf("Error creating directory!n");
+	    exit(1);
+	}
+}
+
 ///////////////////////////////
 
 void testPacketAggregator() {
