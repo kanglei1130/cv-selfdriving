@@ -65,6 +65,8 @@
 #define GetCurrentDir getcwd
 #endif
 
+#include <ctime>//stopsign
+
 /////////////////////////////
 #include <gst/gst.h>
 
