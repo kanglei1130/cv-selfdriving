@@ -169,8 +169,11 @@ static double meanSquareError(const Mat &img1, const Mat &img2) {
 
 
 void detectStopSign() {
+	// threshold of detection a stop sign
+	int THRESHOLD = 7100;
+
     // read target image
-	string in = string("/home/wei/Downloads/cv-selfdriving/StopSignDataset/136.jpg");
+	string in = string("/home/wei/Downloads/cv-selfdriving/StopSignDataset/11.jpg");
 	string in2 = string("/home/wei/Downloads/cv-selfdriving/StopSignDataset/stopPrototype.png");
     Mat targetImage = imread(in, IMREAD_COLOR);;
     //cout << "Target Image: " << argv[1] << endl;
@@ -185,27 +188,24 @@ void detectStopSign() {
 
     //cout << "Prototype Image: " << argv[2] << endl;
 
-    int maxSim = 50000;
-    int maxBox[4] = {0, 0, 0, 0};
-
+    //int maxSim = 50000;
+    int minMSE = INT_MAX;
+    int location[4] = {0, 0, 0, 0};
     // start time
     int t0 = clock();
-    Mat tmpImg;
+    //Mat tmpImg;
+    Mat tmpImg = prototypeImg.clone();
     Mat window;
-    for (int wsize = prototypeImg.cols; wsize > 50; wsize /= 1.5) {
-        if (wsize == prototypeImg.cols) {
-            tmpImg = prototypeImg.clone();
-        } else {
-            width /= 1.5;
-            height = width;
-            resize(tmpImg, tmpImg, Size(width, height));
+    for (int wsize = tmpImg.cols; wsize > 15; wsize /= 1.3) {
+        if (tmpImg.rows < 15 || tmpImg.cols < 15)
+        	break;
+        if (tmpImg.rows > 900 || tmpImg.cols > 900) {
+        	resize(tmpImg, tmpImg, Size(wsize, wsize));
+        	continue;
         }
-        if (tmpImg.rows < 50 || tmpImg.cols < 50)
-            break;
-        if (tmpImg.rows > 1000 || tmpImg.cols > 1000)
-            continue;
-        for (int y = 0; y < targetImage.rows; y += 2) {
-            for (int x = 0; x < targetImage.cols; x += 2) {
+        cout << "Image pyramid width: " << wsize << " height: " << wsize << endl;
+        for (int y = 0; y < targetImage.rows; y += 5) {
+            for (int x = 0; x < targetImage.cols; x += 5) {
             	if (x + tmpImg.cols > targetImage.cols || y + tmpImg.cols > targetImage.rows)
             	    continue;
                 Rect R(x, y, tmpImg.cols, tmpImg.cols); // create a rectangle
@@ -213,36 +213,39 @@ void detectStopSign() {
                 if (window.rows != tmpImg.rows || window.cols != tmpImg.cols)
                     continue;
                 double tempSim = meanSquareError(tmpImg, window);
-                if (tempSim < maxSim) {
-                	//if still above certain value,then don't rectangle.
-                    maxSim = tempSim;
-                    maxBox[0] = x;
-                    maxBox[1] = y;
-                    maxBox[2] = tmpImg.rows;
-                    maxBox[3] = tmpImg.cols;
+                if (tempSim < minMSE) {
+                    minMSE = tempSim;
+                    location[0] = x;
+                    location[1] = y;
+                    location[2] = tmpImg.rows;
+                    location[3] = tmpImg.cols;
                 }
             }
         }
-        //cout<<"There is no Stop sign"<<endl;
+        resize(tmpImg, tmpImg, Size(wsize, wsize));
     }
 
     // end time
     int t1 = clock();
 
-    cout << "Execution time: " << (t1 - t0)/double(CLOCKS_PER_SEC)*1000 << "ms " << endl;
-    cout << maxSim << endl;
-    cout << maxBox << endl;
-    int buff1 = 10;
-    int x = maxBox[0];
-    int y = maxBox[1];
-    int w = maxBox[2];
-    int h = maxBox[3];
+    cout << "Execution time: " << (t1 - t0)/double(CLOCKS_PER_SEC)*1000 << " ms" << endl;
+    cout << "Minimum MSE: " << minMSE << endl;
+    if (minMSE < THRESHOLD) {
+    	int buff1 = 50;
+    	int x = location[0];
+    	int y = location[1];
+    	int w = location[2];
+    	int h = location[3];
+    	// draw the rectangle
+    	rectangle(targetImage, Point(x-buff1/2,y-buff1/2), Point(x+w+buff1/2,y+h+buff1/2), Scalar(0,255,0), 2);
+    	cout << "Stop sign found!" << endl;
+    } else {
+    	cout << "Stop sign not found!" << endl;
+    }
 
-    // draw the rectangle
-    rectangle(targetImage, Point(x-buff1/2, y-buff1/2), Point(x+w+buff1/2, y+h+buff1/2), Scalar(0,255,0), 2);
     // show the image
     imshow("image", targetImage);
-    int k = waitKey();
+    waitKey(50000);
 }
 
 ///////////////////////////////
